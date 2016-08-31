@@ -5,15 +5,16 @@ import sys
 import time
 from subprocess import Popen, PIPE
 
-SLEEP_SECONDS = 0.1 
+SLEEP_SECONDS = 0.1
+
 
 class SimpleTest():
     def run(self, port):
         self.setup(port)
         try:
-          self.test_two_clients()
+            self.test_two_clients()
         finally:
-          self.tear_down()
+            self.tear_down()
 
     def setup(self, port, host="localhost"):
         """Sets up a server and four clients."""
@@ -33,7 +34,7 @@ class SimpleTest():
 
     def get_message_from_buffer(self, buf):
         """Strips all formatting, including [Me] and whitespace."""
-        s =  "".join(buf).replace('[Me]', '').strip()
+        s = "".join(buf).replace('[Me]', '').strip()
         return s
 
     def check_for_output(self, client, expected_output, check_formatting=False):
@@ -43,7 +44,7 @@ class SimpleTest():
         # Read one character at a time from stdout until either time timeout expires, or
         # the output is correct.
         while (self.get_message_from_buffer(output_buffer) != expected_output
-                and time.time() < end_time):
+               and time.time() < end_time):
             select_timeout = end_time - time.time()
             ready_to_read, ready_to_write, in_error = select.select(
                 [client.stdout], [], [], select_timeout)
@@ -70,6 +71,7 @@ class SimpleTest():
         self.alice_client.stdin.write("Hello!\n")
         self.check_for_output(self.kay_client, "[Alice] Hello!")
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python simple_test.py <port>"
@@ -77,4 +79,3 @@ if __name__ == "__main__":
 
     port = int(sys.argv[1])
     SimpleTest().run(port)
-
