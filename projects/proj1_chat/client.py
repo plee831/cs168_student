@@ -26,9 +26,10 @@ while True:
         (new_sock, address) = read_sock.accept()
         Data = new_sock.recv(1024)
         # TODO something with the data
+        print(Data)
     for write_sock in ready_to_write:
         raw_message_to_send = raw_input()
         if len(raw_message_to_send) != 200:
             padded_message_to_send = raw_message_to_send.ljust(200, ' ')
-        client_sock.send(padded_message_to_send)
+        write_sock.send(padded_message_to_send)
         print(utils.CLIENT_MESSAGE_PREFIX + raw_message_to_send)
