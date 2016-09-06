@@ -1,23 +1,34 @@
 import socket
 import sys
 import utils
+import select
+
+NAME_TAG = '$$$$'
 
 client_sock = socket.socket()
-client_name = sys.argv[1]
+client_name = NAME_TAG + sys.argv[1]
 host = sys.argv[2]
 port = int(sys.argv[3])
+
+recv_socket = socket.socket()
+recv_socket.bind(('', port+1))
+recv_socket.listen(1)
+
 try:
     client_socket = client_sock.connect((host, port))
 except socket.error, exc:
-    print(utils.CLIENT_CANNOT_CONNECT.replace('{0}', host).replace('{1}', port))
-
+    print(utils.CLIENT_CANNOT_CONNECT.format(host, str(port)))
+    pass
+client_sock.send(client_name)
 while True:
-    Data = client_socket.recv(1024)
-    if len(Data) == 0:
-        print(utils.CLIENT_SERVER_DISCONNECTED.replace({'0'}, host).replace({1}, port))
-
-        break
-    client_sock.send(client_name)
-
-    client_sock.send(raw_input())
-
+    ready_to_read, ready_to_write, in_error = select.select([recv_socket], [client_sock], [], 0)
+    for read_sock in ready_to_read:
+        (new_sock, address) = read_sock.accept()
+        Data = new_sock.recv(1024)
+        # TODO something with the data
+    for write_sock in ready_to_write:
+        raw_message_to_send = raw_input()
+        if len(raw_message_to_send) != 200:
+            padded_message_to_send = raw_message_to_send.ljust(200, ' ')
+        client_sock.send(padded_message_to_send)
+        print(utils.CLIENT_MESSAGE_PREFIX + raw_message_to_send)
