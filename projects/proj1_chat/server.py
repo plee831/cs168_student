@@ -1,6 +1,7 @@
 import socket
 import sys
 import select
+import utils
 
 READ_SOCKET_LIST = []
 
@@ -25,6 +26,7 @@ while True:
         else:
             # STDOUT Server Side
             Data = sock.recv(1024)
+            # Client is sending its name over
             if '$$$$' in Data:
                 client_name = Data[4:]
                 remote_to_name[str(sock.getpeername())] = client_name
@@ -32,9 +34,24 @@ while True:
             else:
                 client_name = remote_to_name[str(sock.getpeername())]
                 name_to_messages[client_name] = Data
-                # This sends to specific socket's address, not remote
-                sock.sendto(Data, sock.getsockname())
-                print(Data)
+
+                # Client Command
+                message = Data.strip()
+                if message[0] == '/':
+                    control_message = message[1:]
+                    if control_message == 'create':
+                        print('create test')
+                    elif control_message == 'list':
+                        print('list test')
+                    elif control_message == 'join':
+                        print('join test')
+                    else:
+                        print(utils.SERVER_INVALID_CONTROL_MESSAGE.format(control_message))
+                else:
+                    print('not a control message')
+                    # This sends to specific socket's address, not remote
+                    sock.sendto(Data, sock.getsockname())
+                print(Data.strip())
 
 
 # The first message that the server receives
