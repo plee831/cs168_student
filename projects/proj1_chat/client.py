@@ -17,11 +17,9 @@ except socket.error, exc:
     pass
 client_sock.send(client_name)
 while True:
-    print("begin")
     ready_to_read, ready_to_write, in_error = select.select([client_sock], [client_sock], [], 0)
     for write_sock in ready_to_write:
         raw_message_to_send = raw_input()
-        print('writing ' + raw_message_to_send)
         if len(raw_message_to_send) != 200:
             padded_message_to_send = raw_message_to_send.ljust(200, ' ')
         write_sock.send(padded_message_to_send)
@@ -30,7 +28,6 @@ while True:
         # data = client_sock.recv(1024)
         data = read_sock.recv(1024)
         if not data:
-            print('please')
             break
         else:
             print(data.strip())

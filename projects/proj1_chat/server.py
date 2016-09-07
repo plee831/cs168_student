@@ -10,9 +10,10 @@ port = int(sys.argv[1])
 server_socket.bind(('', port))
 server_socket.listen(20)
 READ_SOCKET_LIST.append(server_socket)
-# dictionary of all the names to respective channels
+
 remote_to_name = {}
 name_to_channel = {}
+channels = set()
 name_to_messages = {}
 client_name = ''
 
@@ -39,19 +40,37 @@ while True:
                 message = Data.strip()
                 if message[0] == '/':
                     control_message = message[1:]
+                    message_to_send = ''
                     if control_message == 'create':
                         print('create test')
+                        channel = control_message.split(" ")[1]
+                        if channel in channels:
+                            message_to_send = utils.SERVER_CHANNEL_EXISTS.format(channel), sock.getsockname()
+                        else:
+                            channels.add(channel)
+                            name_to_channel[client_name] = channel
                     elif control_message == 'list':
                         print('list test')
+                        for channel in channels:
+                            message_to_send = message_to_send + channel + '\n'
                     elif control_message == 'join':
                         print('join test')
+                        channel = control_message.split(" ")[1]
+                        if channel in channels:
+                            name_to_channel[client_name] = channel
+                            # message_to_send = utils.SERVER_CLIENT_JOINED_CHANNEL.format(client_name)
+                            # send this to everyone
+                            print()
+                        else:
+                            message_to_send = utils.SERVER_NO_CHANNEL_EXISTS.format(channel)
                     else:
-                        print(utils.SERVER_INVALID_CONTROL_MESSAGE.format(control_message))
+                        message_to_send = utils.SERVER_INVALID_CONTROL_MESSAGE.format(control_message)
+                    if message_to_send != '':
+                        sock.sendto(message_to_send, sock.getsockname())
                 else:
-                    print('not a control message')
                     # This sends to specific socket's address, not remote
                     sock.sendto(Data, sock.getsockname())
-                print(Data.strip())
+            print(Data.strip())
 
 
 # The first message that the server receives
