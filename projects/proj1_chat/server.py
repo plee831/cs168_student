@@ -3,7 +3,6 @@ import sys
 import select
 
 READ_SOCKET_LIST = []
-# WRITE_SOCKET_LIST = []
 
 server_socket = socket.socket()
 port = int(sys.argv[1])
@@ -17,7 +16,7 @@ name_to_messages = {}
 client_name = ''
 
 while True:
-    ready_to_read, ready_to_write, in_error = select.select(READ_SOCKET_LIST, READ_SOCKET_LIST, [], 0)
+    ready_to_read, ready_to_write, in_error = select.select(READ_SOCKET_LIST, [], [], 0)
     for sock in ready_to_read:
         # new connection to server
         if sock == server_socket:
@@ -35,6 +34,7 @@ while True:
                 name_to_messages[client_name] = Data
                 # This sends to specific socket's address, not remote
                 sock.sendto(Data, sock.getsockname())
+                print(Data)
 
 
 # The first message that the server receives
