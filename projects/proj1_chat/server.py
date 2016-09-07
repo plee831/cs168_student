@@ -2,6 +2,7 @@ import socket
 import sys
 import select
 import utils
+from client_split_messages import ChatClientSplitMessages
 
 READ_SOCKET_LIST = []
 
@@ -21,7 +22,7 @@ name_to_messages = {}
 client_name = ''
 
 
-def create(c_message):
+def create(c_message, c_name):
     msg_to_send = ''
     if len(c_message) == 1:
         msg_to_send = utils.SERVER_CREATE_REQUIRES_ARGUMENT
@@ -31,7 +32,7 @@ def create(c_message):
             msg_to_send = utils.SERVER_CHANNEL_EXISTS.format(chl)
         else:
             channels.add(chl)
-            name_to_channel[client_name] = chl
+            name_to_channel[c_name] = chl
     return msg_to_send
 
 
@@ -52,15 +53,19 @@ def join_channel(c_message, c_name):
             for name in name_to_channel.keys():
                 for inner_sock in READ_SOCKET_LIST:
                     if name_to_channel[name] == channel and remote_to_name[str(inner_sock.getpeername())] == name:
-                        inner_sock.sendall(utils.SERVER_CLIENT_JOINED_CHANNEL.format(name))
+                        ccsm = ChatClientSplitMessages(inner_sock.getsockname()[0], inner_sock.getsockname()[1])
+                        ccsm.send_split_message(ccsm, inner_sock, utils.SERVER_CLIENT_JOINED_CHANNEL.format(name))
+                        # inner_sock.sendall(utils.SERVER_CLIENT_JOINED_CHANNEL.format(name))
             if c_name in name_to_channel.keys():
                 old_channel = name_to_channel[c_name]
                 for name in name_to_channel.keys():
                     for inner_sock in READ_SOCKET_LIST:
                         if name_to_channel[name] == old_channel and \
                                         remote_to_name[str(inner_sock.getpeername())] == name:
-                            inner_sock.sendall(utils.SERVER_CLIENT_LEFT_CHANNEL.format(name))
-                name_to_channel[client_name] = channel
+                            ccsm = ChatClientSplitMessages(inner_sock.getsockname()[0], inner_sock.getsockname()[1])
+                            ccsm.send_split_message(inner_sock, utils.SERVER_CLIENT_LEFT_CHANNEL.format(name))
+                            # inner_sock.sendall(utils.SERVER_CLIENT_LEFT_CHANNEL.format(name))
+                name_to_channel[c_name] = channel
         else:
             msg_to_send = utils.SERVER_NO_CHANNEL_EXISTS.format(channel)
     return msg_to_send
@@ -74,7 +79,7 @@ while True:
             READ_SOCKET_LIST.append(new_sock)
         else:
             # STDOUT Server Side
-            Data = sock.recv(8000)
+            Data = sock.recv(200).strip()
 
             # removing broken socket
             if not Data:
@@ -87,32 +92,40 @@ while True:
                 client_name = Data[4:]
                 remote_to_name[str(sock.getpeername())] = client_name
                 name_to_address[client_name] = sock.getsockname()
+                print(client_name)
             # Client sending over message
             else:
                 client_name = remote_to_name[str(sock.getpeername())]
                 name_to_messages[client_name] = Data
 
                 # Control Command
-                message = Data.strip()
-                if not message == '':
-                    if message[0] == '/':
-                        control_message = message[1:].split(" ")
-                        if control_message[0] == 'create':
-                            sock.sendall(create(control_message))
-                        elif control_message[0] == 'list':
-                            sock.sendall(list_channels())
-                        elif control_message[0] == 'join':
-                            sock.sendall(join_channel(control_message, client_name))
-                        else:
-                            sock.sendall(utils.SERVER_INVALID_CONTROL_MESSAGE.format(control_message))
+                message = Data
+                ccsm = ChatClientSplitMessages(sock.getsockname()[0], sock.getsockname()[1])
+                if message[0] == '/':
+                    control_message = message[1:].split(" ")
+                    if control_message[0] == 'create':
+                        ccsm.send_split_message(sock, create(control_message, client_name))
+                        # sock.sendall(create(control_message, client_name))
+                    elif control_message[0] == 'list':
+                        ccsm.send_split_message(sock, list_channels())
+                        # sock.sendall(list_channels())
+                    elif control_message[0] == 'join':
+                        ccsm.send_split_message(sock, join_channel(control_message, client_name))
+                        # sock.sendall(join_channel(control_message, client_name))
+                    else:
+                        ccsm.send_split_message(sock, utils.SERVER_INVALID_CONTROL_MESSAGE.format(control_message))
+                        # sock.sendall(utils.SERVER_INVALID_CONTROL_MESSAGE.format(control_message))
                 # Not a control Command. Regular message
                 else:
+                    print("WHY")
                     # This sends to specific socket's address, not remote
                     name = remote_to_name[str(sock.getpeername())]
                     if name not in name_to_channel.keys():
-                        sock.sendall(utils.SERVER_CLIENT_NOT_IN_CHANNEL)
+                        ccsm.send_split_message(sock, utils.SERVER_CLIENT_NOT_IN_CHANNEL)
+                        # sock.sendall(utils.SERVER_CLIENT_NOT_IN_CHANNEL)
                     else:
-                        sock.sendall(Data)
+                        ccsm.send_split_message(sock, Data)
+                        # sock.sendall(Data)
 
 # The first message that the server receives
 # from the client should be used as the client's name.
