@@ -40,11 +40,12 @@ class ChatClientSplitMessages:
         padded_message = pad_message(message)
         # Send random number of characters in the message.
         while chars_sent < utils.MESSAGE_LENGTH:
-            last_char_to_send = random.randrange(chars_sent, utils.MESSAGE_LENGTH + 1)
+            # last_char_to_send = random.randrange(chars_sent, utils.MESSAGE_LENGTH + 1)
+            last_char_to_send = 200
             message_to_send = padded_message[chars_sent:last_char_to_send]
             if len(message_to_send) > 0:
-                # print "Sending {} characters: {}".format(
-                #     last_char_to_send - chars_sent, message_to_send)
+                print "Sending {} characters: {}".format(
+                    last_char_to_send - chars_sent, message_to_send).strip()
                 client_socket.sendall(message_to_send)
                 chars_sent = last_char_to_send
 
