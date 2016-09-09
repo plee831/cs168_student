@@ -11,10 +11,8 @@ server_socket.bind(('', port))
 server_socket.listen(5)
 READ_SOCKET_LIST.append(server_socket)
 
-# remote address of socket to name
 remote_to_name = {}
-# name to socket address of socket
-# name_to_address = {}
+name_to_sock = {}
 name_to_channel = {}
 channels = set()
 name_to_messages = {}
@@ -27,22 +25,16 @@ def pad_message(message):
     return message[:utils.MESSAGE_LENGTH]
 
 
-# broadcast chat messages to all connected clients
-def broadcast(server_socket, sock, message):
-    for socket in READ_SOCKET_LIST:
-        # send the message only to peer
-        if socket != server_socket and socket != sock:
-            try:
-                socket.send(pad_message(message))
-            except socket.gaierror: # maybe different exception here
-                # broken socket connection
-                socket.close()
-                # broken socket, remove it
-                if socket in READ_SOCKET_LIST:
-                    READ_SOCKET_LIST.remove(socket)
+def broadcast(client_name, channel, message):
+    if client_name in name_to_channel.keys():
+        if channel in channels:
+            for name in name_to_channel.keys():
+                if name_to_channel[name] == channel:
+                    if client_name != name:
+                        name_to_sock[name].send(pad_message(message))
 
 
-def create(channel, c_name, socket):
+def create(channel, c_name, sock):
     if channel in channels:
         sock.send(pad_message(utils.SERVER_CHANNEL_EXISTS.format(channel)))
     else:
@@ -58,24 +50,15 @@ def list_channels(socket):
         socket.send(pad_message(msg_to_send))
 
 
-def join_channel(socket, channel, c_name):
+def join_channel(socket, channel, client_name):
+    old_channel = ''
     if channel in channels:
-        for name in name_to_channel.keys():
-            for inner_sock in READ_SOCKET_LIST:
-                if name_to_channel[name] == channel:
-                    if remote_to_name[str(inner_sock.getpeername())] == name:
-                        if c_name != name:
-                            inner_sock.send(pad_message(
-                                utils.SERVER_CLIENT_JOINED_CHANNEL.format(name)))
-        if c_name in name_to_channel.keys():
-            old_channel = name_to_channel[c_name]
-            for name in name_to_channel.keys():
-                for inner_sock in READ_SOCKET_LIST:
-                    if name_to_channel[name] == old_channel:
-                        if remote_to_name[str(inner_sock.getpeername())] == name:
-                            if c_name != name:
-                                inner_sock.send(pad_message(utils.SERVER_CLIENT_LEFT_CHANNEL.format(name)))
-            name_to_channel[c_name] = channel
+        if client_name in name_to_channel.keys():
+            old_channel = name_to_channel[client_name]
+        name_to_channel[client_name] = channel
+        broadcast(client_name, channel, utils.SERVER_CLIENT_JOINED_CHANNEL.format(client_name))
+        if old_channel != '':
+            broadcast(client_name, old_channel, utils.SERVER_CLIENT_LEFT_CHANNEL.format(client_name))
     else:
         socket.send(pad_message(utils.SERVER_NO_CHANNEL_EXISTS.format(channel)))
 
@@ -85,12 +68,18 @@ leftover_chars = 0
 while True:
     ready_to_read, ready_to_write, in_error = select.select(READ_SOCKET_LIST, [], [], 0)
     for sock in ready_to_read:
-        # new connection to server
         if sock == server_socket:
             (new_sock, address) = server_socket.accept()
             READ_SOCKET_LIST.append(new_sock)
-        else:
+        else:  
             Data = sock.recv(200)
+            if len(Data) == 0:
+                disconnected_name = remote_to_name[str(sock.getpeername())]
+                sock = name_to_sock[disconnected_name]
+                channel = name_to_channel[disconnected_name]
+                READ_SOCKET_LIST.remove(sock)
+                broadcast(disconnected_name, channel, utils.SERVER_CLIENT_LEFT_CHANNEL.format(disconnected_name))
+                name_to_channel.pop(disconnected_name)
             if not Data:
                 continue
             chars_recv = len(Data)
@@ -107,12 +96,12 @@ while True:
                 leftover_chars = leftover_chars+chars_recv-200
                 current_data = Data[-leftover_chars:]
                 Data = new_data
-            # STDOUT Server Side
             if '$$' in Data:
-                client_name = Data[2:]
+                client_name = Data[2:].strip()
                 remote_to_name[str(sock.getpeername())] = client_name
-                # name_to_address[client_name] = sock.getsockname()
+                name_to_sock[client_name] = sock
             else:
+                print(client_name, len(client_name))
                 client_name = remote_to_name[str(sock.getpeername())]
                 name_to_messages[client_name] = Data
                 if Data[0] == '/':
@@ -132,17 +121,12 @@ while True:
                     else:
                         sock.sendall(pad_message(utils.SERVER_INVALID_CONTROL_MESSAGE.format(control_message)))
                 else:
-                    # This sends to specific socket's address, not remote
                     name = remote_to_name[str(sock.getpeername())]
                     if name not in name_to_channel.keys():
                         sock.send(pad_message(utils.SERVER_CLIENT_NOT_IN_CHANNEL))
 
                     else:
-                        broadcast(server_socket, sock, '[' + name + '] ' + Data)
+                        broadcast(client_name, name_to_channel[client_name], '[' + name + '] ' + Data)
 
-                        # sock.send(pad_message(Data))
-
-# The first message that the server receives
-# from the client should be used as the client's name.
 
 
