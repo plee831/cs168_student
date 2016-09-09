@@ -42,18 +42,12 @@ def broadcast(server_socket, sock, message):
                     READ_SOCKET_LIST.remove(socket)
 
 
-def create(c_message, c_name):
-    msg_to_send = ''
-    if len(c_message) == 1:
-        msg_to_send = utils.SERVER_CREATE_REQUIRES_ARGUMENT
+def create(channel, c_name, socket):
+    if channel in channels:
+        sock.send(pad_message(utils.SERVER_CHANNEL_EXISTS.format(channel)))
     else:
-        chl = c_message[1]
-        if chl in channels:
-            msg_to_send = utils.SERVER_CHANNEL_EXISTS.format(chl)
-        else:
-            channels.add(chl)
-            name_to_channel[c_name] = chl
-    return pad_message(msg_to_send)
+        channels.add(channel)
+        name_to_channel[c_name] = channel
 
 
 def list_channels(socket):
@@ -115,18 +109,21 @@ while True:
                 Data = new_data
             # STDOUT Server Side
             if '$$' in Data:
-                client_name = Data[4:]
+                client_name = Data[2:]
                 remote_to_name[str(sock.getpeername())] = client_name
                 # name_to_address[client_name] = sock.getsockname()
             else:
-                remote_to_name[str(sock.getpeername())] = client_name
+                client_name = remote_to_name[str(sock.getpeername())]
                 name_to_messages[client_name] = Data
                 if Data[0] == '/':
                     control_message = Data[1:].strip().split(" ")
-                    if control_message[0] == 'create' and len(control_message) == 2:
-                        sock.send(create(pad_message(control_message), client_name))
+                    if control_message[0] == 'create':
+                        if len(control_message) == 1:
+                            sock.send(pad_message(utils.SERVER_CREATE_REQUIRES_ARGUMENT))
+                        else:
+                            create(control_message[1], client_name, sock)
                     elif control_message[0] == 'list' and len(control_message) == 1:
-                        list_channels(socket)
+                        list_channels(sock)
                     elif control_message[0] == 'join':
                         if len(control_message) == 1:
                             sock.send(pad_message(utils.SERVER_JOIN_REQUIRES_ARGUMENT))
@@ -141,8 +138,9 @@ while True:
                         sock.send(pad_message(utils.SERVER_CLIENT_NOT_IN_CHANNEL))
 
                     else:
-                        # broadcast(server_socket, sock, '[' + name + '] ' + Data)
-                        sock.send(pad_message(Data))
+                        broadcast(server_socket, sock, '[' + name + '] ' + Data)
+
+                        # sock.send(pad_message(Data))
 
 # The first message that the server receives
 # from the client should be used as the client's name.
