@@ -26,7 +26,6 @@ except socket.error, exc:
 client_sock.send(pad_message(client_name))
 leftover_chars = 0
 current_data = ''
-a = True
 sys.stdout.write(utils.CLIENT_MESSAGE_PREFIX)
 sys.stdout.flush()
 while True:
