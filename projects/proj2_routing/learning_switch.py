@@ -23,14 +23,13 @@ class LearningSwitch(api.Entity):
 
     """
 
-    def __init__(self, name):
+    def __init__(self):
         """
         Do some initialization.
 
         You probablty want to do something in this method.
 
         """
-        self.name = name
         self.routing_table = {}
         self.ports = []
 
@@ -67,5 +66,10 @@ class LearningSwitch(api.Entity):
             # Don't forward discovery messages
             return
 
-        # Flood out all ports except the input port
-        self.send(packet, in_port, flood=True)
+        if packet.src not in self.routing_table:
+            self.routing_table[packet.src] = in_port
+        if packet.dst in self.routing_table:
+            self.send(packet, self.routing_table[packet.dst], flood=False)
+        else:
+            # Flood out all ports except the input port
+            self.send(packet, in_port, flood=True)
