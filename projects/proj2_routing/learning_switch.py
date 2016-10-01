@@ -23,14 +23,16 @@ class LearningSwitch(api.Entity):
 
     """
 
-    def __init__(self):
+    def __init__(self, name):
         """
         Do some initialization.
 
         You probablty want to do something in this method.
 
         """
-        pass
+        self.name = name
+        self.routing_table = {}
+        self.ports = []
 
     def handle_link_down(self, port):
         """
@@ -40,7 +42,10 @@ class LearningSwitch(api.Entity):
         valid here.
 
         """
-        pass
+        self.ports.remove(port)
+        for key in self.routing_table:
+            if self.routing_table[key] == port:
+                del self.routing_table[key]
 
     def handle_rx(self, packet, in_port):
         """
