@@ -57,15 +57,19 @@ class DVRouter(basics.DVRouterBase):
         You definitely want to fill this in.
 
         """
-        # self.log("RX %s on %s (%s)", packet, port, api.current_time())
+        self.log("RX %s on %s (%s)", packet, port, api.current_time())
         if isinstance(packet, basics.RoutePacket):
-            pass
+            if packet.src not in self.routing_table:
+                self.routing_table[packet.src] = port
+            if packet.dst in self.routing_table:
+                self.send(packet, self.routing_table[packet.dst], flood=False)
         elif isinstance(packet, basics.HostDiscoveryPacket):
             pass
         else:
             # Totally wrong behavior for the sake of demonstration only: send
             # the packet back to where it came from!
-            self.send(packet, port=port)
+            if packet.dst in self.routing_table:
+                self.send(packet, port=self.routing_table[packet.dst])
 
     def handle_timer(self):
         """
