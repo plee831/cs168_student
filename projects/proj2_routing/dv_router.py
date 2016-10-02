@@ -8,9 +8,9 @@ INFINITY = 16
 
 
 class DVRouter(basics.DVRouterBase):
-    # NO_LOG = True # Set to True on an instance to disable its logging
-    # POISON_MODE = True # Can override POISON_MODE here
-    # DEFAULT_TIMER_INTERVAL = 5 # Can override this yourself for testing
+    NO_LOG = True  # Set to True on an instance to disable its logging
+    POISON_MODE = False  # Can override POISON_MODE here
+    DEFAULT_TIMER_INTERVAL = 5  # Can override this yourself for testing
 
     def __init__(self):
         """
@@ -20,6 +20,8 @@ class DVRouter(basics.DVRouterBase):
 
         """
         self.start_timer()  # Starts calling handle_timer() at correct rate
+        self.routing_table = {}
+        self.ports = {}
 
     def handle_link_up(self, port, latency):
         """
@@ -29,7 +31,8 @@ class DVRouter(basics.DVRouterBase):
         in.
 
         """
-        pass
+        self.ports[port] = latency
+        # TODO add in logic of sending update of routing table
 
     def handle_link_down(self, port):
         """
@@ -38,7 +41,11 @@ class DVRouter(basics.DVRouterBase):
         The port number used by the link is passed in.
 
         """
-        pass
+        del self.ports[port]
+        for key in self.routing_table:
+            if self.routing_table[key] == port:
+                del self.routing_table[key]
+        # TODO add in logic of sending update of routing table
 
     def handle_rx(self, packet, port):
         """
@@ -50,7 +57,7 @@ class DVRouter(basics.DVRouterBase):
         You definitely want to fill this in.
 
         """
-        #self.log("RX %s on %s (%s)", packet, port, api.current_time())
+        # self.log("RX %s on %s (%s)", packet, port, api.current_time())
         if isinstance(packet, basics.RoutePacket):
             pass
         elif isinstance(packet, basics.HostDiscoveryPacket):

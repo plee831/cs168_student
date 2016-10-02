@@ -31,7 +31,6 @@ class LearningSwitch(api.Entity):
 
         """
         self.routing_table = {}
-        self.ports = []
 
     def handle_link_down(self, port):
         """
@@ -41,7 +40,6 @@ class LearningSwitch(api.Entity):
         valid here.
 
         """
-        self.ports.remove(port)
         for key in self.routing_table:
             if self.routing_table[key] == port:
                 del self.routing_table[key]
