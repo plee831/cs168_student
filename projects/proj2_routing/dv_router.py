@@ -82,10 +82,15 @@ class DVRouter(basics.DVRouterBase):
             # packet.src & packet.dst
             found_host = False
             for host in self.hosts.keys():
-                if packet.dst == host:
-                    found_host = True
+                if packet.dst in self.dst_to_destination.keys():
+                    if self.dst_to_destination[packet.dst] == host:
+                        found_host = True
             if not found_host:
-                self.send(packet, port=self.routing_table[self.dst_to_destination[packet.dst]][1])
+                if packet.dst in self.dst_to_destination.keys():
+                    dest = self.dst_to_destination[packet.dst]
+                    self.send(packet, port=self.routing_table[dest][1])
+                else:
+                    self.send(packet, port=port, flood=True)
 
     def handle_timer(self):
         """
