@@ -84,7 +84,6 @@ class DVRouter(basics.DVRouterBase):
             for host in self.hosts.keys():
                 if packet.dst == host:
                     found_host = True
-                    self.send(packet, port=self.hosts[packet.dst])
             if not found_host:
                 self.send(packet, port=self.routing_table[self.dst_to_destination[packet.dst]][1])
 
