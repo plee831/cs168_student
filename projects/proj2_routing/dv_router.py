@@ -21,6 +21,7 @@ class DVRouter(basics.DVRouterBase):
         """
         self.start_timer()  # Starts calling handle_timer() at correct rate
         self.routing_table = {}
+        self.dst_to_destination = {}
         self.ports = {}
         self.hosts = {}
 
@@ -65,19 +66,27 @@ class DVRouter(basics.DVRouterBase):
 
         """
         self.log("RX %s on %s (%s)", packet, port, api.current_time())
-        if isinstance(packet, basics.RoutePacket):
+        if isinstance(packet, basics.RoutePacket):  # .dst = none
             if packet.destination not in self.routing_table:
                 self.routing_table[packet.destination] = (packet.latency, port)
+                self.dst_to_destination[packet.dst] = packet.destination
             else:
                 old_latency = self.routing_table[packet.destination][0]
                 if old_latency > packet.latency:
                     self.routing_table[packet.destination] = (packet.latency, port)
+                    self.dst_to_destination[packet.dst] = packet.destination
         elif isinstance(packet, basics.HostDiscoveryPacket):
             if packet.src not in self.hosts:
                 self.hosts[packet.src] = port
         else:
-            if packet.dst in self.routing_table:
-                self.send(packet, port=self.routing_table[packet.dst][1])
+            # packet.src & packet.dst
+            found_host = False
+            for host in self.hosts.keys():
+                if packet.dst == host:
+                    found_host = True
+                    self.send(packet, port=self.hosts[packet.dst])
+            if not found_host:
+                self.send(packet, port=self.routing_table[self.dst_to_destination[packet.dst]][1])
 
     def handle_timer(self):
         """
