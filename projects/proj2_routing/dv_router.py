@@ -33,11 +33,12 @@ class DVRouter(basics.DVRouterBase):
 
         """
         # could be host or router that comes up
-        self.ports[port] = latency
         # TODO add in logic of sending update of routing table
-        for p in self.ports:
-            for destination in self.routing_table.keys():
-                self.send(basics.RoutePacket(destination=destination, latency=latency), port=p)
+        for destination in self.routing_table.keys():
+            self.send(basics.RoutePacket(destination=destination, latency=self.routing_table[destination][0]), port=port)
+        # for p in self.ports:
+            # self.send(basics.RoutePacket(destination=destination, latency=latency), port=p)
+        self.ports[port] = latency
 
     def handle_link_down(self, port):
         """
