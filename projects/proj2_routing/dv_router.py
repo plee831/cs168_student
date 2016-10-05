@@ -22,6 +22,7 @@ class DVRouter(basics.DVRouterBase):
         self.start_timer()  # Starts calling handle_timer() at correct rate
         self.routing_table = {}
         self.ports = {}
+        self.hosts = {}
 
     def handle_link_up(self, port, latency):
         """
@@ -31,8 +32,12 @@ class DVRouter(basics.DVRouterBase):
         in.
 
         """
+        # could be host or router that comes up
         self.ports[port] = latency
         # TODO add in logic of sending update of routing table
+        for p in self.ports:
+            for destination in self.routing_table.keys():
+                self.send(basics.RoutePacket(destination=destination, latency=latency), port=p)
 
     def handle_link_down(self, port):
         """
@@ -46,6 +51,7 @@ class DVRouter(basics.DVRouterBase):
             if self.routing_table[key] == port:
                 del self.routing_table[key]
         # TODO add in logic of sending update of routing table
+        # TODO letting routers know that the link went down (whether host or router)
 
     def handle_rx(self, packet, port):
         """
@@ -59,17 +65,18 @@ class DVRouter(basics.DVRouterBase):
         """
         self.log("RX %s on %s (%s)", packet, port, api.current_time())
         if isinstance(packet, basics.RoutePacket):
-            if packet.src not in self.routing_table:
-                self.routing_table[packet.src] = port
-            if packet.dst in self.routing_table:
-                self.send(packet, self.routing_table[packet.dst], flood=False)
+            if packet.destination not in self.routing_table:
+                self.routing_table[packet.destination] = (packet.latency, port)
+            else:
+                old_latency = self.routing_table[packet.destination][0]
+                if old_latency > packet.latency:
+                    self.routing_table[packet.destination] = (packet.latency, port)
         elif isinstance(packet, basics.HostDiscoveryPacket):
-            pass
+            if packet.src not in self.hosts:
+                self.hosts[packet.src] = port
         else:
-            # Totally wrong behavior for the sake of demonstration only: send
-            # the packet back to where it came from!
             if packet.dst in self.routing_table:
-                self.send(packet, port=self.routing_table[packet.dst])
+                self.send(packet, port=self.routing_table[packet.dst][1])
 
     def handle_timer(self):
         """
