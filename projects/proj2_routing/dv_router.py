@@ -88,12 +88,15 @@ class DVRouter(basics.DVRouterBase):
                 print "Packet.src: " + str(packet.src)
                 print "Packet.dst: " + str(packet.dst)
                 self.hosts[packet.src] = {port, packet.dst}
-                self.send(basics.RoutePacket(destination=packet.dst, latency=0),
+                self.send(basics.RoutePacket(destination=packet.src, latency=0),
                           port=port, flood=True)
             else:
                 print("AAAAA")
         else:
             # packet.src & packet.dst
+            print ("-----")
+            print ("Regular Packet")
+            print ("-----")
             found_host = False
             for host in self.hosts.keys():
                 if port in self.ports_to_dst.keys():
@@ -102,7 +105,6 @@ class DVRouter(basics.DVRouterBase):
             if not found_host:
                 if port in self.ports_to_dst.keys():
                     # never goes into this
-                    print("@@@")
                     dst = self.ports_to_dst[port]
                     self.send(packet, port=self.routing_table[dst][1])
 
