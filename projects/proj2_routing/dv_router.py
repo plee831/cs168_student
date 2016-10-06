@@ -82,6 +82,7 @@ class DVRouter(basics.DVRouterBase):
                 self.dst_to_destination[packet.dst] = packet.destination
                 self.ports_to_dst[port] = packet.dst
         elif isinstance(packet, basics.HostDiscoveryPacket):
+            # https://piazza.com/class/iq6sgotn6pp37f?cid=463
             print "Host Discovery Packet $$$$"
             if packet.src not in self.hosts:
                 print "Packet.src: " + str(packet.src)
