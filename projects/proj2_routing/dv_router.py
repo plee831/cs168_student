@@ -23,6 +23,7 @@ class DVRouter(basics.DVRouterBase):
         self.routing_table = {}
         self.dst_to_destination = {}
         self.ports = {}
+        self.ports_to_dst = {}
         self.hosts = {}
 
     def handle_link_up(self, port, latency):
@@ -67,30 +68,42 @@ class DVRouter(basics.DVRouterBase):
         """
         self.log("RX %s on %s (%s)", packet, port, api.current_time())
         if isinstance(packet, basics.RoutePacket):  # .dst = none
+            print("Route Packet @@@@")
+            print "Packet.src: " + str(packet.src)
+            print "Packet.dst: " + str(packet.dst)
             if packet.destination not in self.routing_table:
-                self.routing_table[packet.destination] = (packet.latency, port)
+                self.routing_table[packet.destination] = (packet.latency, port, api.current_time())
                 self.dst_to_destination[packet.dst] = packet.destination
+                self.ports_to_dst[port] = packet.dst
             else:
                 old_latency = self.routing_table[packet.destination][0]
                 if old_latency > packet.latency:
-                    self.routing_table[packet.destination] = (packet.latency, port)
-                    self.dst_to_destination[packet.dst] = packet.destination
+                    self.routing_table[packet.destination] = (packet.latency, port, api.current_time())
+                self.dst_to_destination[packet.dst] = packet.destination
+                self.ports_to_dst[port] = packet.dst
         elif isinstance(packet, basics.HostDiscoveryPacket):
+            print "Host Discovery Packet $$$$"
             if packet.src not in self.hosts:
-                self.hosts[packet.src] = port
+                print "Packet.src: " + str(packet.src)
+                print "Packet.dst: " + str(packet.dst)
+                self.hosts[packet.src] = {port, packet.dst}
+                self.send(basics.RoutePacket(destination=packet.dst, latency=0),
+                          port=port, flood=True)
+            else:
+                print("AAAAA")
         else:
             # packet.src & packet.dst
             found_host = False
             for host in self.hosts.keys():
-                if packet.dst in self.dst_to_destination.keys():
-                    if self.dst_to_destination[packet.dst] == host:
+                if port in self.ports_to_dst.keys():
+                    if self.ports_to_dst[port] == host:
                         found_host = True
             if not found_host:
-                if packet.dst in self.dst_to_destination.keys():
-                    dest = self.dst_to_destination[packet.dst]
-                    self.send(packet, port=self.routing_table[dest][1])
-                else:
-                    self.send(packet, port=port, flood=True)
+                if port in self.ports_to_dst.keys():
+                    # never goes into this
+                    print("@@@")
+                    dst = self.ports_to_dst[port]
+                    self.send(packet, port=self.routing_table[dst][1])
 
     def handle_timer(self):
         """
@@ -101,4 +114,8 @@ class DVRouter(basics.DVRouterBase):
         have expired.
 
         """
-        pass
+        for dst in self.routing_table.keys():
+            received_time = self.routing_table[dst][2]
+            if api.current_time() - received_time > self.ROUTE_TIMEOUT:
+                del self.routing_table[dst]
+
