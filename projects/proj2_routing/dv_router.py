@@ -34,7 +34,8 @@ class DVRouter(basics.DVRouterBase):
         """
         # could be host or router that comes up
         # TODO add in logic of sending update of routing table
-        for destination in self.routing_table.keys():
+        for port in self.hosts.keys():
+            print ("#######")
             self.send(basics.RoutePacket(destination=destination, latency=self.routing_table[destination][0]), port=port)
         # for p in self.ports:
             # self.send(basics.RoutePacket(destination=destination, latency=latency), port=p)
@@ -100,16 +101,22 @@ class DVRouter(basics.DVRouterBase):
             # packet.src & packet.dst
             print ("-----")
             print ("Regular Packet")
-            print ("-----")
-            #found_host = False
+            found_host = False
             # print packet.src, 'Hwyeywey'
             # print packet.dst, "Hwllo"
             for port in self.hosts.keys():
                 if packet.src != packet.dst:
                 #if port in self.ports_to_dst.keys():
                     if self.hosts[port] == packet.dst:
-                        #found_host = True
+                        found_host = True
                         self.send(packet, port=port)
+            print "ALEX"
+            for key in self.routing_table:
+                print key
+            print "NOOBUEN"
+            if not found_host:
+                if packet.dst in self.routing_table.keys():
+                    self.send(packet, self.routing_table[packet.dst][1])
             #if not found_host:
                 # if port in self.ports_to_dst.keys():
                 #     # never goes into this
