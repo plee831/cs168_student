@@ -19,124 +19,100 @@ class DVRouter(basics.DVRouterBase):
         """
         self.start_timer()  # Starts calling handle_timer() at correct rate
         self.port_to_latency = {}  # port to latency [NEIGHBORS]
-        self.hosts_to_route = {}  # destination to (total_cost, port, timestamp)
-        self.host_to_port = {}  # host to port
-        # Another thought : destination: latency, next_hop, for the routing table, do we need port?
+        self.hosts_to_route = {}  # destination to [total_cost, port, timestamp
+        self.poison_state = {}   # destination to 
 
-    def handle_link_up(self, port, latency):
+    def handle_link_up (self, port, latency):
         """
         Called by the framework when a link attached to this Entity goes up.
-        The port attached to the link and the link latency are passed
-        in.
+        The port attached to the link and the link latency are passed in.
         """
         self.port_to_latency[port] = latency
+        for host in self.hosts_to_route.keys():
+            self.send(basics.RoutePacket(host, self.hosts_to_route[host][0]), port)
 
-    def handle_link_down(self, port):
+    def handle_link_down (self, port):
         """
         Called by the framework when a link attached to this Entity does down.
         The port number used by the link is passed in.
         """
-        if self.POISON_MODE:
-            deleted_destination = None
-            for host in self.host_to_port.keys():
-                if self.host_to_port[host] == port:
-                    deleted_destination = host
-                    self.host_to_port[host] = None
-                    self.hosts_to_route[host] = None
-            for host in self.host_to_port.keys():
-                if deleted_destination is not None:
-                    self.send(basics.RoutePacket(deleted_destination, INFINITY), self.host_to_port[host], flood=False)
+        del self.port_to_latency[port]
+        if not self.POISON_MODE:
+            for host in self.hosts_to_route.keys():
+                if self.hosts_to_route[host][1] == port:
+                    del self.hosts_to_route[host]
         else:
-            for host in self.host_to_port.keys():
-                if self.host_to_port[host] == port:
-                    self.host_to_port[host] = None
-                    self.hosts_to_route[host] = None
-            if port in self.port_to_latency:
-                del self.port_to_latency[port]
-
-    def handle_rx(self, packet, port):
+          for host in self.hosts_to_route.keys():
+            if self.hosts_to_route[host][1] == port:
+                self.poison_state[host] = self.hosts_to_route[host]
+                rp = basics.RoutePacket(host, INFINITY)
+                self.send(rp, port=None, flood=True)
+                del self.hosts_to_route[host]
+    
+    def handle_rx (self, packet, port):
         """
         Called by the framework when this Entity receives a packet.
         packet is a Packet (or subclass).
         port is the port number it arrived on.
         You definitely want to fill this in.
         """
-        self.log("RX %s on %s (%s)", packet, port, api.current_time())
-        print "ROUTING TABLE: " + str(self.hosts_to_route)
-        if isinstance(packet, basics.RoutePacket):  # .dst = none
-            if packet.latency == INFINITY:
-                self.hosts_to_route[packet.destination] = (INFINITY, port, api.current_time())
-                for p in self.port_to_latency.keys():
-                    self.send(basics.RoutePacket(packet.destination, 16), p)
-            else:
-                destinations = []
-                for p in self.port_to_latency.keys():
-                    destinations.append(self.port_to_latency[p])
-                if packet.destination not in self.hosts_to_route.keys():
-                    self.hosts_to_route[packet.destination] = (packet.latency, port, api.current_time())
+        if isinstance(packet, basics.RoutePacket):
+            if (packet.latency + self.port_to_latency[port] < INFINITY):
+
+                if (packet.destination not in self.hosts_to_route.keys()) or (self.hosts_to_route[packet.destination] == None) or (self.hosts_to_route[packet.destination][0] > packet.latency + self.port_to_latency[port]):
+                    temp_packet = basics.RoutePacket(packet.destination, self.port_to_latency[port] + packet.latency)
+                    self.hosts_to_route[packet.destination] = [temp_packet.latency, port, api.current_time()]
+                    self.send(temp_packet, port, flood=True)
+                    if self.POISON_MODE:
+                        poison = basics.RoutePacket(packet.destination, INFINITY)
+                        self.send(poison, port, flood=False)
                 else:
-                    old_latency = self.hosts_to_route[packet.destination][0]
-                    new_latency = self.hosts_to_route[packet.destination][0] + packet.latency
-                    if old_latency > new_latency:
-                        self.hosts_to_route[packet.destination] = (packet.latency, port, api.current_time())
-                        self.host_to_port[packet.destination] = port
-                        self.port_to_latency[port] = new_latency
-                        self.send(basics.RoutePacket(packet.destination,
-                                                     self.port_to_latency[self.hosts_to_route[packet.destination][1]]),
-                                  destinations,
-                                  flood=False)
+                    if self.hosts_to_route[packet.destination][1] == port:
+                        self.hosts_to_route[packet.destination][2] = api.current_time()
+                        if packet.latency + self.port_to_latency[port] > self.hosts_to_route[packet.destination][0]:
+                            self.hosts_to_route[packet.destination][0] = packet.latency + self.port_to_latency[port]
+                            temp_packet = basics.RoutePacket(packet.destination, self.port_to_latency[port] + packet.latency)
+                            self.send(temp_packet, port, flood=True)
+                            if self.POISON_MODE:
+                                poison = basics.RoutePacket(packet.destination, INFINITY)
+                                self.send(poison, port, flood=False)
+                if self.poison_state.get(packet.destination) != None and self.POISON_MODE:
+                    del self.poison_state[packet.destination]
+            elif packet.latency >= INFINITY and self.POISON_MODE:
+                for host in self.hosts_to_route.keys():
+                    if (host == packet.destination) and (self.hosts_to_route[host][1] == port):
+                        poison = basics.RoutePacket(packet.destination, INFINITY)
+                        self.send(poison, port, flood=True)
+                        self.poison_state[host] = self.hosts_to_route[host]
+                        del self.hosts_to_route[host]
 
         elif isinstance(packet, basics.HostDiscoveryPacket):
-            print "Host Discovery Packet $$$$"
-            if packet.src not in self.host_to_port.keys():
-                self.host_to_port[packet.src] = port
-            print self.host_to_port
-            # for host in self.host_to_port.keys():
-            #     self.send(basics.RoutePacket(
-            #         destination=host,
-            #         latency=self.port_to_latency[self.host_to_port[host]]),
-            #         port=self.host_to_port[host]
-            #     )
-            self.send(basics.RoutePacket(
-                destination=packet.src,
-                latency=self.port_to_latency[self.host_to_port[packet.src]]),
-                port=port, flood=True
-            )
+            self.hosts_to_route[packet.src] = [self.port_to_latency[port], port, -1]
+            route = basics.RoutePacket(packet.src, self.port_to_latency[port])
+            self.send(route, port, flood=True)
         else:
-            print "REGULAR PACKET"
-            print "SELF"
-            print self
-            print self.host_to_port
-            print "PACKET SRC"
-            print packet.src
-            print "PACKET DST"
-            print packet.dst
-            if packet.src != packet.dst:
-                if packet.dst in self.hosts_to_route.keys():
-                    self.send(packet, port=self.hosts_to_route[packet.dst][1])
-                else:
-                    for p in self.port_to_latency.keys():
-                        # if host == packet.dst:
-                        if packet.dst in self.host_to_port.keys():
-                            if self.host_to_port[packet.dst] == p:
-                                self.send(packet, port=p)
-                                break
-                        else:
-                            self.send(packet, port=p)
-
-    def handle_timer(self):
+            if (self.hosts_to_route.get(packet.dst) != None and self.hosts_to_route[packet.dst][1] != port):
+                if self.hosts_to_route[packet.dst][0] <= INFINITY: 
+                    self.send(packet, self.hosts_to_route[packet.dst][1], flood=False)
+  
+    def handle_timer (self):
         """
         Called periodically.
-        When called, your router should send tables to neighbors.  It
-        also might not be a bad place to check for whether any entries
-        have expired.
+        When called, your router should send tables to neighbors.  It also might
+        not be a bad place to check for whether any entries have expired.
         """
         for host in self.hosts_to_route.keys():
-            received_time = self.hosts_to_route[host][2]
-            if api.current_time() - received_time > self.ROUTE_TIMEOUT:
-                if host in self.host_to_port.keys():
-                    del self.host_to_port[host]
+            if (api.current_time() - self.hosts_to_route[host][2] ) <= self.ROUTE_TIMEOUT or self.hosts_to_route[host][2] == -1:
+                route = basics.RoutePacket(host, self.hosts_to_route[host][0])
+                self.send(route, self.hosts_to_route[host][1], flood=True)
+                if self.POISON_MODE:
+                    self.send(basics.RoutePacket(host, INFINITY), self.hosts_to_route[host][1], flood=False)
+            else:
+                if self.POISON_MODE:
+                    self.send(basics.RoutePacket(host, INFINITY), self.hosts_to_route[host][1], flood=False)
+                    self.poison_state[host] = self.hosts_to_route[host]
                 del self.hosts_to_route[host]
-        for p in self.port_to_latency.keys():
-            for host in self.hosts_to_route.keys():
-                self.send(basics.RoutePacket(destination=host, latency=self.hosts_to_route[host][0]), p)
+        if self.POISON_MODE:
+            for p in self.poison_state.keys():
+                poison = basics.RoutePacket(p, INFINITY)
+                self.send(poison, port=None, flood=True)
