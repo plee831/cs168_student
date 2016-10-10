@@ -18,10 +18,9 @@ class DVRouter(basics.DVRouterBase):
         You probably want to do some additional initialization here.
         """
         self.start_timer()  # Starts calling handle_timer() at correct rate
-        self.routing_table = {}  # destination: latency, port, current time
-        self.ports = {}  # port to latency
-        self.neighbors = {}  # port to source
-
+        self.port_to_latency = {}  # port to latency
+        self.hosts_to_route = {}  # host to (destination, port)
+        self.host_to_port = {}  # host to port
         # Another thought : destination: latency, next_hop, for the routing table, do we need port?
 
     def handle_link_up(self, port, latency):
@@ -31,28 +30,23 @@ class DVRouter(basics.DVRouterBase):
         in.
         """
         print "handling this port: " + str(port)
-        self.ports[port] = latency
+        self.port_to_latency[port] = latency
 
     def handle_link_down(self, port):
         """
         Called by the framework when a link attached to this Entity does down.
         The port number used by the link is passed in.
         """
-        print self
-        print ("FAILURE " + str(port))
-        print self.neighbors
         deleted_destination = None
-        for neighbor_port in self.neighbors.keys():
-            if neighbor_port == port:
-                print "GGGGG"
-                deleted_destination = self.neighbors[neighbor_port][0]
-                del self.neighbors[neighbor_port]
-        for neighbor in self.neighbors.keys():
-            print deleted_destination
+        for host in self.host_to_port.keys():
+            if self.host_to_port[host] == port:
+                deleted_destination = host
+                del self.host_to_port[host]
+        for host in self.host_to_port.keys():
             if deleted_destination is not None:
-                self.send(basics.RoutePacket(deleted_destination, -1), neighbor, flood=False)
-        if port in self.ports: 
-            del self.ports[port]
+                self.send(basics.RoutePacket(deleted_destination, -1), self.host_to_port[host], flood=False)
+        if port in self.port_to_latency: 
+            del self.port_to_latency[port]
 
     def handle_rx(self, packet, port):
         """
@@ -62,55 +56,59 @@ class DVRouter(basics.DVRouterBase):
         You definitely want to fill this in.
         """
         self.log("RX %s on %s (%s)", packet, port, api.current_time())
-        print str(port) + " YO YO Y OY OYO YO YO YOY OY O"
         if isinstance(packet, basics.RoutePacket):  # .dst = none
-            self.neighbors[port] = (packet.src, packet.dst)
             if packet.latency == -1:
-                print "@@@@@@@@@@@@@"
-                for neighbor in self.neighbors.keys():
-                    del self.routing_table[packet.destination]
-                    self.send(basics.RoutePacket(packet.destination, -1), self.neighbors(neighbor)[1])
+                for host in self.host_to_port.keys():
+                    del self.hosts_to_route[host]
+                    self.send(basics.RoutePacket(packet.destination, -1), self.host_to_port[host])
             destinations = []
-            for dst in self.routing_table.keys():
-                destinations.append(self.routing_table[dst][1])
-
-            self.routing_table[packet.destination] = (packet.latency, port, api.current_time())
-
-            if packet.destination not in self.routing_table:
-                self.routing_table[packet.destination] = (packet.latency, port, api.current_time())
+            for host in self.hosts_to_route.keys():
+                destinations.append(self.hosts_to_route[host][1])
+            if host not in self.hosts_to_route:
+                self.hosts_to_route[host] = (packet.destination, port, api.current_time())
+                print "$$$$" + str(self.hosts_to_route)
             else:
-                old_latency = self.routing_table[packet.destination][0]
-
-                new_latency = self.routing_table[packet.destination][0] + packet.latency
+                old_latency = self.port_to_latency[self.hosts_to_route[host][1]]
+                new_latency = self.port_to_latency[self.hosts_to_route[host][1]] + packet.latency
                 if old_latency > new_latency:
-                    self.routing_table[packet.destination] = (new_latency, port, api.current_time())
-            self.send(basics.RoutePacket(packet.destination, self.routing_table[packet.destination][0]), destinations,
+                    self.hosts_to_route[host] = (packet.destination, port, api.current_time())
+                    self.port_to_latency[port] = new_latency
+            self.send(basics.RoutePacket(packet.destination,
+                                         self.port_to_latency[self.hosts_to_route[host][1]]),
+                      destinations,
                       flood=False)
 
         elif isinstance(packet, basics.HostDiscoveryPacket):
             # https://piazza.com/class/iq6sgotn6pp37f?cid=463
             print "Host Discovery Packet $$$$"
             print str(port) + " HP"
-            if port not in self.neighbors.keys():
-                self.neighbors[port] = (packet.src, packet.dst)
-                print str(self.neighbors[port]) + " " + str(port)
-                print ("@@@@")
-                print self.routing_table.keys()
-                print self.neighbors.keys()
-                for neighbor in self.neighbors.keys():
-                    self.send(basics.RoutePacket(destination=packet.src,
-                                                 latency=self.ports[neighbor]
-                                                 ), port=port, flood=True)
+            if packet.src not in self.host_to_port:
+                self.host_to_port[packet.src] = port
+            for host in self.host_to_port.keys():
+                self.send(basics.RoutePacket(
+                    destination=host,
+                    latency=self.port_to_latency[self.host_to_port[host]]),
+                    port=self.host_to_port[host]
+                )
+
+            # if port not in self.neighbors.keys():
+            #     self.neighbors[port] = (packet.src, packet.dst)
+            #     for neighbor in self.neighbors.keys():
+            #         self.send(basics.RoutePacket(destination=packet.src,
+            #                                      latency=self.port_to_latency[neighbor]
+            #                                      ), port=neighbor)
         else:
             found_host = False
-            for port in self.neighbors.keys():
+            for host in self.host_to_port.keys():
                 if packet.src != packet.dst:
-                    if self.neighbors[port][0] == packet.dst:
+                    if host == packet.dst:
                         found_host = True
                         self.send(packet, port=port)
             if not found_host:
-                if packet.dst in self.routing_table.keys():
-                    self.send(packet, self.routing_table[packet.dst][1])
+                print self.hosts_to_route
+                if packet.dst in self.hosts_to_route.keys():
+                    print (" $!$!$!: " + self.hosts_to_route[packet.dst])
+                    self.send(packet, self.hosts_to_route[packet.dst][1])
 
     def handle_timer(self):
         """
@@ -119,7 +117,7 @@ class DVRouter(basics.DVRouterBase):
         also might not be a bad place to check for whether any entries
         have expired.
         """
-        for dst in self.routing_table.keys():
-            received_time = self.routing_table[dst][2]
+        for host in self.hosts_to_route.keys():
+            received_time = self.hosts_to_route[host][2]
             if api.current_time() - received_time > self.ROUTE_TIMEOUT:
-                del self.routing_table[dst]
+                del self.hosts_to_route[host]
