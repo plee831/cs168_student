@@ -30,6 +30,7 @@ class DVRouter(basics.DVRouterBase):
         The port attached to the link and the link latency are passed
         in.
         """
+        print "handling this port: " + str(port)
         self.ports[port] = latency
 
     def handle_link_down(self, port):
@@ -39,6 +40,7 @@ class DVRouter(basics.DVRouterBase):
         """
         print self
         print ("FAILURE " + str(port))
+        print self.neighbors
         deleted_destination = None
         for neighbor_port in self.neighbors.keys():
             if neighbor_port == port:
@@ -60,7 +62,9 @@ class DVRouter(basics.DVRouterBase):
         You definitely want to fill this in.
         """
         self.log("RX %s on %s (%s)", packet, port, api.current_time())
+        print str(port) + " YO YO Y OY OYO YO YO YOY OY O"
         if isinstance(packet, basics.RoutePacket):  # .dst = none
+            self.neighbors[port] = (packet.src, packet.dst)
             if packet.latency == -1:
                 print "@@@@@@@@@@@@@"
                 for neighbor in self.neighbors.keys():
@@ -86,17 +90,17 @@ class DVRouter(basics.DVRouterBase):
         elif isinstance(packet, basics.HostDiscoveryPacket):
             # https://piazza.com/class/iq6sgotn6pp37f?cid=463
             print "Host Discovery Packet $$$$"
+            print str(port) + " HP"
             if port not in self.neighbors.keys():
-                print "OKO K O KO K  K K K KK "
                 self.neighbors[port] = (packet.src, packet.dst)
                 print str(self.neighbors[port]) + " " + str(port)
                 print ("@@@@")
+                print self.routing_table.keys()
+                print self.neighbors.keys()
                 for neighbor in self.neighbors.keys():
                     self.send(basics.RoutePacket(destination=packet.src,
-                                                 latency=0
-                                                 ), port=neighbor)
-                # self.send(basics.RoutePacket(destination=packet.src, latency=0),
-                #           port=port, flood=True)
+                                                 latency=self.ports[neighbor]
+                                                 ), port=port, flood=True)
         else:
             found_host = False
             for port in self.neighbors.keys():
