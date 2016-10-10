@@ -46,14 +46,16 @@ class DVRouter(basics.DVRouterBase):
         Called by the framework when a link attached to this Entity does down.
         The port number used by the link is passed in.
         """
-        #if port in self.ports:
-         #   del self.ports[port]
-        #del self.hosts[port]
+        if port in self.ports:
+           del self.ports[port]
+        if port in self.hosts:
+            del self.hosts[port]
         
-        # for key in self.routing_table:
-        #     if self.routing_table[key] == port:
-        #         del self.routing_table[key]
+        for key in self.routing_table:
+            if self.routing_table[key][1] == port:
+                del self.routing_table[key]
         # TODO add in logic of sending update of routing table
+        # This is a big one
         # TODO letting routers know that the link went down (whether host or router)
 
     def handle_rx(self, packet, port):
@@ -65,13 +67,16 @@ class DVRouter(basics.DVRouterBase):
         """
         self.log("RX %s on %s (%s)", packet, port, api.current_time())
         if isinstance(packet, basics.RoutePacket):  # .dst = none
-            print("Route Packet @@@@")
-            print "Packet.src: " + str(packet.src)
-            print "Packet.dst: " + str(packet.dst)
+            
+            # Add all the ports to a destination list
+            destinations = []
+            for dst in self.routing_table.keys():
+                destinations.append(self.routing_table[dst][1])
+
+            self.routing_table[packet.destination] = (packet.latency, port, api.current_time())
+
             if packet.destination not in self.routing_table:
                 self.routing_table[packet.destination] = (packet.latency, port, api.current_time())
-                self.dst_to_destination[packet.dst] = packet.destination
-                self.ports_to_dst[port] = packet.dst
             else:
                 old_latency = self.routing_table[packet.destination][0]
                 # We are missing another latency value here
@@ -79,24 +84,28 @@ class DVRouter(basics.DVRouterBase):
                 new_latency = self.routing_table[packet.src][0] + packet.latency
                 if old_latency > new_latency:
                     self.routing_table[packet.destination] = (new_latency, port, api.current_time())
-                self.dst_to_destination[packet.dst] = packet.destination
-                self.ports_to_dst[port] = packet.dst
+                    self.send(basics.RoutePacket(packet.destination, self.routing_table[packet.destination][0]), destinations, flood=False)
+            self.send(basics.RoutePacket(packet.destination, self.routing_table[packet.destination][0]), destinations, flood=False)
+            self.dst_to_destination[packet.dst] = packet.destination
+            self.ports_to_dst[port] = packet.dst
+
         elif isinstance(packet, basics.HostDiscoveryPacket):
             # https://piazza.com/class/iq6sgotn6pp37f?cid=463
             print "Host Discovery Packet $$$$"
+            
             self.hosts[port] = packet.src
             
-            # print packet.src
-            # print self.hosts
-            # if packet.src not in self.hosts.values():
-            #     print "IN HEEHEHEH"
-            #     print "Packet.src: " + str(packet.src)
-            #     print "Packet.dst: " + str(packet.dst)
-            #     self.hosts[packet.src] = {port, packet.dst}
-            #     self.send(basics.RoutePacket(destination=packet.src, latency=0),
-            #               port=port, flood=True)
-            # else:
-            #     print("AAAAA")
+            print packet.src
+            print self.hosts
+            if packet.src not in self.hosts.values():
+                print "IN HEEHEHEH"
+                print "Packet.src: " + str(packet.src)
+                print "Packet.dst: " + str(packet.dst)
+                self.hosts[packet.src] = {port, packet.dst}
+                self.send(basics.RoutePacket(destination=packet.src, latency=0),
+                          port=port, flood=True)
+            else:
+                print("AAAAA")
         else:
             # packet.src & packet.dst
             print ("-----")
