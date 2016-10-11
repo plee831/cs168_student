@@ -26,6 +26,11 @@ def main():
     t.test('dv_router', 'tests.test_no_hairpin')
     t.test('dv_router', 'tests.test_link_weights')
     t.test('dv_router', 'tests.test_expire_routes')
+    t.test('dv_router', 'tests.test_fun')
+    t.test('dv_router', 'tests.test_diamond_top')
+    t.test('dv_router', 'tests.test_basics_intensely')
+    t.test('dv_router', 'tests.test_diamond_top_2')
+    t.test('dv_router', 'tests.test_disconnect')
     t.test(
         'dv_router',
         'tests.test_route_poisoning',
