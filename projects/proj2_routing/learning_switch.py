@@ -41,8 +41,9 @@ class LearningSwitch(api.Entity):
         valid here.
 
         """
-        self.ports.remove(port)
-        for key in self.routing_table:
+        if port in self.ports:
+            self.ports.remove(port)
+        for key in self.routing_table.keys():
             if self.routing_table[key] == port:
                 del self.routing_table[key]
 
@@ -65,7 +66,6 @@ class LearningSwitch(api.Entity):
         if isinstance(packet, basics.HostDiscoveryPacket):
             # Don't forward discovery messages
             return
-
         if packet.src not in self.routing_table:
             self.routing_table[packet.src] = in_port
         if packet.dst in self.routing_table:
