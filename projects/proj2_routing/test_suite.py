@@ -20,6 +20,8 @@ def main():
     t = TestSuite()
 
     t.test('learning_switch', 'tests.test_learning')
+    t.test('learning_switch', 'tests.test_super_learning')
+    t.test('learning_switch', 'tests.test_learning_disconnect')
     t.test('dv_router', 'tests.test_simple')
     t.test('dv_router', 'tests.test_failure')
     t.test('dv_router', 'tests.test_initialize_neighbor')
@@ -31,8 +33,6 @@ def main():
     t.test('dv_router', 'tests.test_basics_intensely')
     t.test('dv_router', 'tests.test_diamond_top_2')
     t.test('dv_router', 'tests.test_disconnect')
-    t.test('learning_switch', 'tests.test_super_learning')
-    t.test('learning_switch', 'tests.test_learning_disconnect')
     t.test(
         'dv_router',
         'tests.test_route_poisoning',
