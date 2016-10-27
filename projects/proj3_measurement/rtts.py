@@ -1,5 +1,9 @@
-import re, subprocess
+import os
+import re
+import subprocess
 import numpy as np
+import matplotlib.pyplot as plot
+from mathplotlib.backends import backend_pdf
 
 def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_output_filename):
 	PATTERN_PACKET_LOSS_PER = re.compile("\d+ packets transmitted, \d+ packets received, (\d+.\d+)% packet loss")
@@ -12,10 +16,10 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
 	f2 = open(aggregated_ping_output_filename, 'w+')
 	f2.write('{')	
 
-	for hostname in hostnames:
-		f1.write(hostname+": [")
+	for i in range(0, len(hostnames)):
+		f1.write("\""+hostnames[i]+"\": [")
 		ping = subprocess.Popen(
-			["ping", "-c", str(num_packets), hostname],
+			["ping", "-c", str(num_packets), hostnames[i]],
 			stdout = subprocess.PIPE,
 			stderr = subprocess.PIPE
 		)
@@ -32,10 +36,12 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
 					f1.write(rtt_details[1]+", ")			
 			elif PATTERN_PACKET_LOSS_PER.match(line):
 				ping_info = PATTERN_PACKET_LOSS_PER.search(line).groups()
-				f2.write(hostname+": {\"drop_rate\": "+ping_info[0]+", ")
+				f2.write("\""+hostnames[i]+"\": {\"drop_rate\": "+ping_info[0]+", ")
 			elif PATTERN_TOTAL_RTT.match(line):
 				ping_info = PATTERN_TOTAL_RTT.search(line).groups()
-				f2.write("\"max_rtt\": "+ping_info[3]+", \"median_rtt\": "+ping_info[2]+"}, ")
+				f2.write("\"max_rtt\": "+ping_info[3]+", \"median_rtt\": "+ping_info[2]+"}")
+				if not i == len(hostnames)-1:
+					f2.write(", ")
 			elif PATTERN_DROPED_PACKET.match(line):
 				dropped_packet = PATTERN_DROPED_PACKET.search(line).groups()[0]
 				last_seen = dropped_packet
@@ -49,13 +55,42 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
 					if int(last_seen) == int(num_packets)-2:
 						f1.write("-1")
 						done_with_ttls = True
-		f1.write("], ")
+		if i == len(hostnames) - 1:
+			f1.write("]")
+		else:
+			f1.write("], ")
 	f1.write('}')
 	f1.close()
 	f2.write('}')
 	f2.close()
 
+"""
+this function should take in a filename with the json formatted aggregated 
+ping data and plot a CDF of the median RTTs for each website that responds to ping
+"""
 def plot_median_rtt_cdf(agg_ping_results_filename, output_cdf_filename):
+	plot.plot(y_values, x_values, label=”Median RTT CDF”)
+	plot.legend() # This shows the legend on the plot.
+ 	plot.grid() # Show grid lines, which makes the plot easier to read.
+ 	plot.xlabel("x axis!") # Label the x-axis.
+ 	plot.ylabel("y axis!") # Label the y-axis.
+ 	plot.show()
+	my_filepath = os.path.abspath(output_cdf_filename)
+ 	with backendpdf.PdfPages(my_filepath) as pdf:
+    	pdf.savefig()
 
+# """
+# this function should take in a filename with the json formatted 
+# raw ping data for a particular hostname, and plot a CDF of the RTTs
+# """
+def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename): 
+	plot.plot(y_values, x_values, label=”Ping CDF”)
+	plot.legend() # This shows the legend on the plot.
+ 	plot.grid() # Show grid lines, which makes the plot easier to read.
+ 	plot.xlabel("x axis!") # Label the x-axis.
+ 	plot.ylabel("y axis!") # Label the y-axis.
+ 	plot.show()
+ 	my_filepath = os.path.abspath(output_cdf_filename)
+ 	with backendpdf.PdfPages(my_filepath) as pdf:
+    	pdf.savefig()
 
-# def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename): 
