@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
 import re
 import subprocess
 import numpy as np
 import matplotlib.pyplot as plot
-from matplotlib.backends import backend_pdf
 
 
 def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_output_filename):
@@ -93,12 +91,6 @@ def plot_median_rtt_cdf(agg_ping_results_filename, output_cdf_filename):
         y_values[sorted_median_rtts.index(x_value)] = temp
     print sorted_median_rtts
     print y_values
-    # for m in re.finditer(AGGS_PATTERN, file.read()):
-    #     median_rtts.append(m.group(2))
-    # sorted_median_rtts = sorted(median_rtts)
-    # y_values = []
-    # for x_value in median_rtts:
-    #     y_values[median_rtts.index(x_value)] = sorted_median_rtts.index(x_value)+1 / len(sorted_median_rtts)
     plot.plot(sorted_median_rtts, y_values, label='Median RTT CDF')
     plot.legend()  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
@@ -106,10 +98,6 @@ def plot_median_rtt_cdf(agg_ping_results_filename, output_cdf_filename):
     plot.ylabel("Cumulative Fraction")  # Label the y-axis.
     # plot.show()
     plot.savefig(output_cdf_filename)
-
-    # my_file_path = os.path.abspath(output_cdf_filename)
-    # with backend_pdf.PdfPages(my_file_path) as pdf:
-    #     pdf.savefig()
 
 
 """
@@ -134,10 +122,10 @@ def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename):
             if float(rtt_matcher[j]) != -1.0:
                 rtts.append(float(rtt_matcher[j]))
         sorted_rtts = sorted(rtts)
-        y_values = [0 for x in range(0, len(rtts))]
-        for x_value in rtts:
+        y_values = []
+        for x_value in sorted_rtts:
             temp = float(sorted_rtts.index(x_value) + 1) / float(len(sorted_rtts))
-            y_values[sorted_rtts.index(x_value)] = temp
+            y_values.append(temp)
         plot.plot(sorted_rtts, y_values, label=hostname)
     plot.legend(loc=4)  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
