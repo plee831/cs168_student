@@ -7,6 +7,9 @@
 \usepackage[margin=2cm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[makeroom]{cancel}
+\usepackage[pdftex]{graphicx}
+\usepackage[final]{pdfpages}
+
 
 \newcommand\lgh{\fontsize{17}{21}\usefont{T1}{cmdh}{m}{n}}
 \newcommand\myrule{\par\noindent\rule{\textwidth}{4pt}\par}
@@ -25,7 +28,8 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
     \begin{enumerate}
         \item
         22\% never respond to pings. 35\% fail at least one ping. 
-        \item
+        \item CDF on next page.
+        \includepdf[pages=1,pagecommand={}]{rtt_a_agg_ping_results.pdf}
     \end{enumerate}
     \item
     Questions on experiment b:
@@ -39,14 +43,16 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
         It's loss rate is 2.0.'\\
         For "taobao.com", median RTT: 668.561 ms, maximum RTT: 74.398 ms. \\ 
         It's loss rate is 0.8.
+        \item CDF on next page.
         \item
+        \begin{enumerate}
+            \item
+            The multiplier for google.com is $3.18537033 * 10^{-10} s^{2}/m$. The multipler for zanvarsity.ac.tz is $2.26999039 * 10^{-9} s^{2}/m$.
+            \item
+            The reason why the ping time is not equal to the speed of light time is due to several factors, one example being distance that the packets have to travel back and forth, using cables and routers. Due to this, trying to ping a location that is farther away such as zanvaristy.ac.tz's servers compared to google.com's yields for a greater median RTT. This would mean that a website's "physical location" contributes to the amount of time it takes to ping the website.
+        \end{enumerate}
     \end{enumerate}
-    \item
-    \begin{enumerate}
-        \item
-        \item
-        \item
-    \end{enumerate}
+    \includepdf[pages=1]{rtt_b_raw_results.pdf}
 \end{enumerate}
 \section{Routing}
 \section{Naming}

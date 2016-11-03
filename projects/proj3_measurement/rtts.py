@@ -6,8 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plot
 from matplotlib.backends import backend_pdf
 
-# "youtube.com": [": [14.475,
-
 
 def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_output_filename):
     PATTERN_PACKET_LOSS_PER = re.compile("\d+ packets transmitted, \d+ packets received, (\d+.\d+)% packet loss")
@@ -82,58 +80,77 @@ ping data and plot a CDF of the median RTTs for each website that responds to pi
 
 def plot_median_rtt_cdf(agg_ping_results_filename, output_cdf_filename):
     file = open(agg_ping_results_filename, 'r')
-    AGGS_PATTERN = re.compile("\n?\t?\w+: {\"\w+\": (\d+.?\d*), \"w+\": (\d+.?\d*), \"\w+\": (\d+.?\d*)},?")
+    AGGS_PATTERN = re.compile("\"median_rtt\": (\+?\d+.?\d*)")
     median_rtts = []
-    for m in re.finditer(AGGS_PATTERN, file.read()):
-        median_rtts.append(m.group(2))
+    mat = re.findall(AGGS_PATTERN, file.read())
+    for i in range(0, len(mat)):
+        median = mat[i]
+        median_rtts.append(float(median))
     sorted_median_rtts = sorted(median_rtts)
-    y_values = []
+    y_values = [0 for x in range(0, len(median_rtts))]
     for x_value in median_rtts:
-        y_values[median_rtts.index(x_value)] = sorted_median_rtts.index(x_value)+1 / len(sorted_median_rtts)
-    plot.plot(y_values, median_rtts, label='Median RTT CDF')
+        temp = float(sorted_median_rtts.index(x_value) + 1) / float(len(sorted_median_rtts))
+        y_values[sorted_median_rtts.index(x_value)] = temp
+    print sorted_median_rtts
+    print y_values
+    # for m in re.finditer(AGGS_PATTERN, file.read()):
+    #     median_rtts.append(m.group(2))
+    # sorted_median_rtts = sorted(median_rtts)
+    # y_values = []
+    # for x_value in median_rtts:
+    #     y_values[median_rtts.index(x_value)] = sorted_median_rtts.index(x_value)+1 / len(sorted_median_rtts)
+    plot.plot(sorted_median_rtts, y_values, label='Median RTT CDF')
     plot.legend()  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
     plot.xlabel("Median RTT's")  # Label the x-axis.
     plot.ylabel("Cumulative Fraction")  # Label the y-axis.
-    plot.show()
-    my_file_path = os.path.abspath(output_cdf_filename)
-    with backend_pdf.PdfPages(my_file_path) as pdf:
-        pdf.savefig()
+    # plot.show()
+    plot.savefig(output_cdf_filename)
+
+    # my_file_path = os.path.abspath(output_cdf_filename)
+    # with backend_pdf.PdfPages(my_file_path) as pdf:
+    #     pdf.savefig()
 
 
 """
 this function should take in a filename with the json formatted
 raw ping data for a particular hostname, and plot a CDF of the RTTs
 """
-# google 13.902
+
+
 def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename):
     file = open(raw_ping_results_filename, 'r')
-    RAW_RTT_PATTERN = re.compile("(-?\d+.?\d*)")
-    raw_rtts = []
-    mat = re.findall(RAW_RTT_PATTERN, file.read())
-    for i in range(0, len(mat)):
-        if not float(mat[i]) == -1.0:
-            raw_rtts.append(float(mat[i]))
-    sorted_raw_rtts = sorted(raw_rtts)
-    y_values = [0 for x in range(0, len(raw_rtts))]
-    for x_value in raw_rtts:
-        temp = sorted_raw_rtts.index(x_value) + 1 / len(sorted_raw_rtts)
-        y_values[raw_rtts.index(x_value)] = temp
-    # y_values = [0.5 for x in range(0, len(raw_rtts))]
-    print raw_rtts
-    print y_values
-    plot.plot(raw_rtts, y_values, label='Ping CDF')
-    plot.legend()  # This shows the legend on the plot.
+
+    RAW_RTT_PATTERN = re.compile("\"\w+.?\w+.?\w*\": \[[-?\d+.?\d*,? ?]*\]")
+    m = re.findall(RAW_RTT_PATTERN, file.read())
+    RTTS_PATTERN = re.compile("-?\d+.?\d*")
+    HOSTNAME_PATTERN = re.compile("\"\w+.?\w+.?\w*\"")
+    for i in range(0, len(m)):
+        line = m[i]
+        hostname = re.findall(HOSTNAME_PATTERN, line)[0].split("\"")[1]
+        rtt_matcher = re.findall(RTTS_PATTERN, line)
+        rtts = []
+        for j in range(0, len(rtt_matcher)):
+            if float(rtt_matcher[j]) != -1.0:
+                rtts.append(float(rtt_matcher[j]))
+        sorted_rtts = sorted(rtts)
+        y_values = [0 for x in range(0, len(rtts))]
+        for x_value in rtts:
+            temp = float(sorted_rtts.index(x_value) + 1) / float(len(sorted_rtts))
+            y_values[sorted_rtts.index(x_value)] = temp
+        plot.plot(sorted_rtts, y_values, label=hostname)
+    plot.legend(loc=4)  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
-    plot.xlabel("RTTs")  # Label the x-axis.
+    plot.xlabel("Milliseconds")  # Label the x-axis.
     plot.ylabel("Cumulative Fraction")  # Label the y-axis.
-    plot.show()
-    my_file_path = os.path.abspath(output_cdf_filename)
-    with backend_pdf.PdfPages(my_file_path) as pdf:
-        pdf.savefig()
+    plot.title("RTT CDF")
+    # plot.show()
+    plot.savefig(output_cdf_filename)
 
 if __name__ == "__main__":
-    plot_ping_cdf("google.json", "raw_ping_results.pdf")
+    # plot_median_rtt_cdf("rtt_a_agg.json", "rtt_a_agg_ping_results.pdf")
+    plot_ping_cdf("rtt_b_raw.json", "rtt_b_raw_results.pdf")
+
     # f = open("alexa_top_100", "r")
     # alexa = [x for x in f.read().split("\n")]
     # alexa.remove("")
