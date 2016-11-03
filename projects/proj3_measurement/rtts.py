@@ -18,7 +18,7 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
 
     for i in range(0, len(hostnames)):
         print hostnames[i]
-        f1.write("\""+hostnames[i]+"\": [")
+        f1.write("\"" + hostnames[i] + "\": [")
         ping = subprocess.Popen(
             ["ping", "-c", str(num_packets), hostnames[i]],
             stdout=subprocess.PIPE,
@@ -39,7 +39,7 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
                 ping_info = PATTERN_PACKET_LOSS_PER.search(line).groups()
                 f2.write("\"" + hostnames[i] + "\": {\"drop_rate\": " + ping_info[0] + ", ")
                 if float(ping_info[0]) == 100.0:
-                    f2.write("\"max_rtt\": "+str(float(0.0))+", \"median_rtt\": +"+str(float(0.0))+"}")
+                    f2.write("\"max_rtt\": " + str(float(0.0)) + ", \"median_rtt\": +" + str(float(0.0)) + "}")
                     if not i == len(hostnames) - 1:
                         f2.write(", ")
             elif PATTERN_TOTAL_RTT.match(line):
@@ -134,6 +134,7 @@ def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename):
     plot.title("RTT CDF")
     # plot.show()
     plot.savefig(output_cdf_filename)
+
 
 if __name__ == "__main__":
     # plot_median_rtt_cdf("rtt_a_agg.json", "rtt_a_agg_ping_results.pdf")
