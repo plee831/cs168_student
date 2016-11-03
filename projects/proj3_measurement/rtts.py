@@ -105,21 +105,24 @@ def plot_median_rtt_cdf(agg_ping_results_filename, output_cdf_filename):
 this function should take in a filename with the json formatted
 raw ping data for a particular hostname, and plot a CDF of the RTTs
 """
-
-
+# google 13.902
 def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename):
     file = open(raw_ping_results_filename, 'r')
-    RAW_RTT_PATTERN = re.compile("\[[(\d+.?\d*),? ?]*\]")
+    RAW_RTT_PATTERN = re.compile("(-?\d+.?\d*)")
     raw_rtts = []
-    for m in re.finditer(RAW_RTT_PATTERN, file.read()):
-        for i in range(0, len(m.groups())):
-            raw_rtts.append(m.group(i))
+    mat = re.findall(RAW_RTT_PATTERN, file.read())
+    for i in range(0, len(mat)):
+        if not float(mat[i]) == -1.0:
+            raw_rtts.append(float(mat[i]))
     sorted_raw_rtts = sorted(raw_rtts)
-    y_values = []
+    y_values = [0 for x in range(0, len(raw_rtts))]
     for x_value in raw_rtts:
-        y_values[raw_rtts.index(x_value)] = sorted_raw_rtts.index(x_value) + 1 / len(sorted_raw_rtts)
-    y_values = [0.5]
-    plot.plot(y_values, raw_rtts, label='Ping CDF')
+        temp = sorted_raw_rtts.index(x_value) + 1 / len(sorted_raw_rtts)
+        y_values[raw_rtts.index(x_value)] = temp
+    # y_values = [0.5 for x in range(0, len(raw_rtts))]
+    print raw_rtts
+    print y_values
+    plot.plot(raw_rtts, y_values, label='Ping CDF')
     plot.legend()  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
     plot.xlabel("RTTs")  # Label the x-axis.
@@ -130,22 +133,11 @@ def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename):
         pdf.savefig()
 
 if __name__ == "__main__":
-    f = open("alexa_top_100", "r")
-    alexa = [x for x in f.read().split("\n")]
-    alexa.remove("")
+    plot_ping_cdf("google.json", "raw_ping_results.pdf")
+    # f = open("alexa_top_100", "r")
+    # alexa = [x for x in f.read().split("\n")]
+    # alexa.remove("")
     # print ("part a starting")
     # run_ping(alexa, '10', 'rtt_a_raw.json', 'rtt_a_agg.json')
-    print ("part b starting")
-    run_ping(["google.com", "todayhumor.co.kr", "zanvarsity.ac.tz", "taobao.com"], '500', 'rtt_b_raw.json', 'rtt_b_agg.json')
-
-# sites_a = ["google.com", "facebook.com", "www.berkeley.edu", "allspice.lcs.mit.edu", "todayhumor.co.kr", "www.city.kobe.lg.jp", "www.vutbr.cz", "zanvarsity.ac.tz"]
-# sites_b = ["tpr-route-server.saix.net", "route-server.ip-plus.net", "route-views.oregon-ix.net", "route-server.eastern.allstream.com"]
-# run_traceroute(hostnames, 1, "test.txt")
-# run_traceroute(sites_a, 3, "tr_part_a.txt")
-# run_traceroute(sites_b, 3, "tr_part_b.txt")
-
-# parse_traceroute("test.txt", "test.json")
-# parse_traceroute("tr_part_a.txt", "tr_part_a.json")
-# parse_traceroute("tr_part_b.txt", "tr_part_b.json")
-# python project3_tests.py
-# python project3_tests.py --tr-part-b "tr_part_b.json"
+    # print ("part b starting")
+    # run_ping(["google.com", "todayhumor.co.kr", "zanvarsity.ac.tz", "taobao.com"], '500', 'rtt_b_raw.json', 'rtt_b_agg.json')
