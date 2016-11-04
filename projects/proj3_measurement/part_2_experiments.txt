@@ -1,0 +1,29 @@
+1. Experiment A
+Q: Which ASes are Berkeley directly connected to?
+Q: Which traceroute traverses the most number of ASes? How about the least number of ASes?
+Q: Which websites' routes are load-balanced?
+Q: Are the observed routes stable over multiple runs? For each website, how many unique routes did you observe?
+Q: Using one sentence, please explain one advantage of having stable routes.
+	The ASes of Berkeley are directly connected to
+
+
+2. Experiment B
+Q: How many hops do you observe in each route when you run traceroute from your computer? How many hops do you observe in the reverse direction?
+	Number of hops from our computer to the public servers:
+	18 hops to tpr-route-server.saix.net
+	13 hops to route-server.ip-plus.net
+	14 hops to route-views.oregon-ix.net
+	13 hops to route-views.on.bb.telus.com
+
+	Number of hops to our computer from the public servers:
+	17 hops to tpr-route-server.saix.net
+	23 hops to route-server.ip-plus.net
+	9 hops to route-views.oregon-ix.net
+	14 hops to route-views.on.bb.telus.com
+
+Q: Are these routes symmetric? How many are symmetric and how many are not?
+	None of these routes are symmetric.
+
+Q: What might cause asymmetric routes? List one or two reasons.
+	Traffic congestion is one potential cause of routing asymmetry.
+
