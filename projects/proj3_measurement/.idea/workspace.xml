@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0c7ef2b5-e06b-4d17-9a2c-38b54487c107" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.pdf" afterPath="$PROJECT_DIR$/readme/README.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.synctex.gz" afterPath="$PROJECT_DIR$/readme/README.synctex.gz" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns.py" afterPath="$PROJECT_DIR$/dns.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.fdb_latexmk" afterPath="$PROJECT_DIR$/readme/README.fdb_latexmk" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.log" afterPath="$PROJECT_DIR$/readme/README.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.tex" afterPath="$PROJECT_DIR$/readme/README.tex" />
     </list>
     <ignored path="proj3_measurement.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,7 +23,7 @@
     <favorites_list name="proj3_measurement" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.68915224">
+    <splitter split-orientation="horizontal" split-proportion="0.46946216">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="rtts.py" pinned="false" current-in-tab="false">
@@ -44,8 +39,8 @@
           <file leaf-file-name="dns.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/dns.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="229">
-                  <caret line="143" column="0" selection-start-line="143" selection-start-column="0" selection-end-line="143" selection-end-column="0" />
+                <state relative-caret-position="364">
+                  <caret line="170" column="0" selection-start-line="170" selection-start-column="0" selection-end-line="171" selection-end-column="49" />
                   <folding>
                     <element signature="e#24#33#0" expanded="true" />
                   </folding>
@@ -90,8 +85,8 @@
           <file leaf-file-name="test_result.json" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/test_result.json">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="658905">
-                  <caret line="0" column="1485466" selection-start-line="0" selection-start-column="1485451" selection-end-line="0" selection-end-column="1485466" />
+                <state relative-caret-position="300">
+                  <caret line="0" column="5559" selection-start-line="0" selection-start-column="5559" selection-end-line="0" selection-end-column="5575" />
                   <folding />
                 </state>
               </provider>
@@ -862,16 +857,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test_result.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="658905">
-          <caret line="0" column="1485466" selection-start-line="0" selection-start-column="1485451" selection-end-line="0" selection-end-column="1485466" />
+        <state relative-caret-position="300">
+          <caret line="0" column="5559" selection-start-line="0" selection-start-column="5559" selection-end-line="0" selection-end-column="5575" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dns.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="229">
-          <caret line="143" column="0" selection-start-line="143" selection-start-column="0" selection-end-line="143" selection-end-column="0" />
+        <state relative-caret-position="364">
+          <caret line="170" column="0" selection-start-line="170" selection-start-column="0" selection-end-line="171" selection-end-column="49" />
           <folding>
             <element signature="e#24#33#0" expanded="true" />
           </folding>

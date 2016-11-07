@@ -140,7 +140,25 @@ return a 2-item list that contains the following averages, in this order:
 
 
 def get_average_times(filename):
-    pass
+    f = open(filename, 'r')
+    parsed_json = json.loads(f.read())
+    sum_total_time = 0
+    sum_final_time = 0
+    num_of_finals = 0
+    for name_index in range(0, len(parsed_json)):
+        queries = parsed_json[name_index]['Queries']
+        for query_index in range(0, len(queries)):
+            time = queries[query_index]['Time in millis']
+            answers = queries[query_index]['Answers']
+            for answer_index in range(0, len(answers)):
+                type = answers[answer_index]['Type']
+                if type == 'CNAME' or type == 'A':
+                    sum_final_time += time
+                    num_of_finals += 1
+                sum_total_time += time
+    # printed results - [3791, 86]
+    return [sum_total_time / len(parsed_json), sum_final_time / num_of_finals]
+
 
 
 """
@@ -157,5 +175,6 @@ def generate_time_cdfs(json_filename, output_filename):
 
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "test_result.json")
-    get_average_ttls("test_result.json")
+    # get_average_ttls("test_result.json")
+    get_average_times("test_result.json")
     pass
