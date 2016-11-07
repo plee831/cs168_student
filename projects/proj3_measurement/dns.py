@@ -4,6 +4,7 @@ import re
 import subprocess
 import numpy as np
 import time
+import json
 
 # KEYS FROM utils.py
 NAME_KEY = "\"Name\": "
@@ -91,9 +92,70 @@ result format: [average_root_ttl, average_TLD_ttl, average_other_ttl, average_te
 
 
 def get_average_ttls(filename):
+    f = open(filename, 'r')
+    parsed_json = json.loads(f.read())
+    average_ttl_for_root = 0
+    average_ttl_for_tld = 0
+    average_ttl_for_other = 0
+    average_ttl_for_cname_or_a = 0
+    for name_index in range(0, len(parsed_json)):
+        queries = parsed_json[name_index]['Queries']
+        query_ttls_root_sum = 0
+        query_ttls_tld_sum = 0
+        query_ttls_other_sum = 0
+        query_ttls_cname_or_a_sum = 0
+        for query_index in range(0, len(queries)):
+            answers = queries[query_index]['Answers']
+            ttls_for_root = 0
+            ttls_for_tld = 0
+            ttls_for_other = 0
+            ttls_for_cname_or_a = 0
+            for answer_index in range(0, len(answers)):
+                queried_name = answers[answer_index]['Queried name']
+                type = answers[answer_index]['Type']
+                ttl = answers[answer_index]['TTL']
+                if queried_name == '.':
+                    ttls_for_root += ttl
+                elif queried_name == 'com.':
+                    ttls_for_tld += ttl
+                else:
+                    ttls_for_other += ttl
+                if type == 'CNAME' or type == 'A':
+                    ttls_for_cname_or_a += ttl
+            query_ttls_root_sum += ttls_for_root / len(answers)
+            query_ttls_tld_sum += ttls_for_tld / len(answers)
+            query_ttls_other_sum += ttls_for_other / len(answers)
+            query_ttls_cname_or_a_sum += ttls_for_cname_or_a / len(answers)
+        average_ttl_for_root += query_ttls_root_sum / len(queries)
+        average_ttl_for_tld += query_ttls_tld_sum / len(queries)
+        average_ttl_for_other += query_ttls_other_sum / len(queries)
+        average_ttl_for_cname_or_a += query_ttls_cname_or_a_sum / len(queries)
+    return [average_ttl_for_root, average_ttl_for_tld, average_ttl_for_other, average_ttl_for_cname_or_a]
+
+
+"""
+This function should accept the name of a json file with output as specified above as input. It should
+return a 2-item list that contains the following averages, in this order:
+"""
+
+
+def get_average_times(filename):
     pass
 
 
+"""
+This function should accept json_filename, the name of a json file with output as specified above as input.
+It should generate a graph with a CDF of the distribution of each of the values described in the previous
+function (the total time to resolve a site and the time to resolve just the final request) and save it to
+output_filename. It should not return anything.
+"""
+
+
+def generate_time_cdfs(json_filename, output_filename):
+
+    pass
+
 if __name__ == "__main__":
-    run_dig("alexa_top_100", "test_result.json")
+    # run_dig("alexa_top_100", "test_result.json")
+    get_average_ttls("test_result.json")
     pass
