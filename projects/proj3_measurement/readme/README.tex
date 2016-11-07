@@ -24,7 +24,7 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
 \section{Round Trip Time}
 \begin{enumerate}
     \item
-    Questions on experiment a:
+    Experiment A:
     \begin{enumerate}
         \item
         22\% never respond to pings. 35\% fail at least one ping. 
@@ -32,7 +32,7 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
         \includepdf[pages=1,pagecommand={}]{rtt_a_agg_ping_results.pdf}
     \end{enumerate}
     \item
-    Questions on experiment b:
+    Experiment B:
     \begin{enumerate}
         \item
         For "google.com", median RTT: 95.495 ms, maximum RTT: 6.872 ms.\\
@@ -40,7 +40,7 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
         For "todayhumor.co.kr", median RTT: 154.546 ms, maximum RTT: 11.985 ms.\\
         It's loss rate is 0.0.\\
         For "zanvarsity.ac.tz", median RTT: 680.526 ms, maximum RTT: 76.276 ms.\\
-        It's loss rate is 2.0.'\\
+        It's loss rate is 2.0.\\
         For "taobao.com", median RTT: 668.561 ms, maximum RTT: 74.398 ms. \\ 
         It's loss rate is 0.8.
         \item CDF on next page.
@@ -55,6 +55,35 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
     \includepdf[pages=1]{rtt_b_raw_results.pdf}
 \end{enumerate}
 \section{Routing}
+\begin{enumerate}
+    \item Experiment A
+    \begin{enumerate}
+        \item Which ASes are Berkeley directly connected to?
+        \item Which traceroute traverses the most number of ASes? How about the least number of ASes?
+        \item Which websites' routes are load-balanced?
+        \item Are the observed routes stable over multiple runs? For each website, how many unique routes did you observe?
+        \item Using one sentence, please explain one advantage of having stable routes.\\
+            The ASes of Berkeley are directly connected to
+    \end{enumerate}
+    \item Experiment B
+    \begin{enumerate}
+    \item How many hops do you observe in each route when you run traceroute from your computer? How many hops do you observe in the reverse direction?\\ \\
+    Number of hops from our computer to the public servers:\\
+    18 hops to tpr-route-server.saix.net\\
+    13 hops to route-server.ip-plus.net\\
+    14 hops to route-views.oregon-ix.net\\
+    13 hops to route-views.on.bb.telus.com\\
+    Number of hops to our computer from the public servers:\\
+    17 hops to tpr-route-server.saix.net\\
+    23 hops to route-server.ip-plus.net\\
+    9 hops to route-views.oregon-ix.net\\
+    14 hops to route-views.on.bb.telus.com
+    \item Are these routes symmetric? How many are symmetric and how many are not?\\
+    None of these routes are symmetric.
+    \item What might cause asymmetric routes? List one or two reasons? \\
+    Traffic congestion is one potential cause of routing asymmetry.
+    \end{enumerate}
+\end{enumerate}
 \section{Naming}
 
 \end{document}
