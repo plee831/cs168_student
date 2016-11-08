@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import subprocess
 import json
+import matplotlib.pyplot as plot
+
 
 # KEYS FROM utils.py
 NAME_KEY = "\"Name\": "
@@ -166,8 +168,44 @@ output_filename. It should not return anything.
 
 
 def generate_time_cdfs(json_filename, output_filename):
-
-    pass
+    f = open(json_filename, 'r')
+    parsed_json = json.loads(f.read())
+    total_times = []
+    final_times = []
+    num_of_finals = 0
+    for name_index in range(0, len(parsed_json)):
+        queries = parsed_json[name_index]['Queries']
+        sum_total_time = 0
+        sum_final_time = 0
+        for query_index in range(0, len(queries)):
+            time = queries[query_index]['Time in millis']
+            answers = queries[query_index]['Answers']
+            for answer_index in range(0, len(answers)):
+                type = answers[answer_index]['Type']
+                if type == 'CNAME' or type == 'A':
+                    sum_final_time += time
+                    num_of_finals += 1
+                sum_total_time += time
+        total_times.append(sum_total_time)
+        final_times.append(sum_final_time)
+    sorted_total_times = sorted(total_times)
+    sorted_final_times = sorted(final_times)
+    total_y_values = []
+    final_y_values = []
+    for x_value in sorted_total_times:
+        temp = float(sorted_total_times.index(x_value) + 1) / float(len(sorted_total_times))
+        total_y_values.append(temp)
+    plot.plot(sorted_total_times, total_y_values, label="Total Times")
+    for x_value in sorted_final_times:
+        temp = float(sorted_final_times.index(x_value) + 1) / float(len(sorted_final_times))
+        final_y_values.append(temp)
+    plot.plot(sorted_final_times, final_y_values, label="Final Times")
+    plot.legend(loc=4)  # This shows the legend on the plot.
+    plot.grid()  # Show grid lines, which makes the plot easier to read.
+    plot.xlabel("Milliseconds")  # Label the x-axis.
+    plot.ylabel("Cumulative Fraction")  # Label the y-axis.
+    plot.title("Alexa Top 100 Times CDF")
+    plot.savefig(output_filename)
 
 """
 This function should take the name of two files that
@@ -184,5 +222,6 @@ def count_different_dns_responses(filename1, filename2):
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "test_result.json")
     # get_average_ttls("test_result.json")
-    get_average_times("test_result.json")
+    # get_average_times("test_result.json")
+    generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
     pass
