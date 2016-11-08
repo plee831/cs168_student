@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
-import re
 import subprocess
-import numpy as np
-import time
 import json
 
 # KEYS FROM utils.py
@@ -172,6 +168,18 @@ output_filename. It should not return anything.
 def generate_time_cdfs(json_filename, output_filename):
 
     pass
+
+"""
+This function should take the name of two files that
+each contain json dig output. The idea of this function is to count the number of changes that occur between
+the terminating entries (A or CNAME records for the hostname) in the two sets of dig runs in the two different
+filenames. The function should return a list of two values.
+"""
+
+def count_different_dns_responses(filename1, filename2):
+
+    pass
+
 
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "test_result.json")
