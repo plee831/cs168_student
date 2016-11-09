@@ -29,55 +29,119 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
     hostnames = host_file.readlines()
 
     f.write("[")
-    for i in range(0, len(hostnames)):
-        for j in range(0, 5):
-            tr = subprocess.Popen(
-                ["dig", "+trace", "+tries=1", "+nofail", hostnames[i].split("\n")[0]],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            out, error = tr.communicate()
-            success = "true"
-            tbr = ""
-            blocks = out.split("\n\n")
-            for b in range(0, len(blocks)):
-                block = blocks[b]
-                body = ""
-                block_split = block.split("\n")
-                for k in range(0, len(block_split)):
-                    line = block_split[k]
-                    line_split = line.split()
-                    # IF FIRST LINE OF QUERY
-                    if len(line_split) == 0 or line_split[0] == ";":
-                        continue
-                    elif line_split[0] == ";;":
-                        if line_split[1] == "Received":
-                            body = "{" + TIME_KEY + line_split[len(line_split) - 2] + ", " \
-                                   + ANSWERS_KEY + "[" + body + "]}"
-                            if b < (len(blocks) - 2):
-                                body += ", "
-                        else:
+        if dns_query_server != None:
+        final = ""
+        for i in range(0, len(hostnames)):
+            for j in range(0, 2):
+                tr = subprocess.Popen(
+                    ["dig", hostnames[i].split("\n")[0], dns_query_server],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                out, error = tr.communicate()
+                tbr = ""
+
+                queries = out.split(";; Got answer:");
+                for q in range(1, len(queries)):
+                    success = "false" #WILL CHANGE WHEN WE PARSE
+                    time_tbr = 0
+
+                    query_tbr = "" #WILL BE WRITTENT O FILE
+                    query = queries[q] 
+                    
+                    blocks = out.split("\n\n")
+                    for b in range(0, len(blocks)):
+                        block = blocks[b]
+                        body = ""
+                        block_split = block.split("\n")
+
+                        for k in range(0, len(block_split)):
+                            line = block_split[k]
+                            line_split = line.split()
+
+                            if b == 0 or b == (len(blocks) - 1): #FIRST BLOCK or LAST BLOCK
+                                if PATTERN_TIME.search(line):
+                                    time_tbr = PATTERN_TIME.search(line).groups()[0]
+                                if PATTERN_STATUS.search(line):
+                                    success = "true"
+
+                            elif PATTERN_ANSWER_SECTION.search(block_split[0]) or PATTERN_ADD_SECTION.search(block_split[0]):
+                                if len(line_split) == 0 or line_split[0] == ";;":
+                                    continue
+
+                                queried_name = line_split[0]
+                                ttl_ = line_split[1]
+                                type_ = line_split[3]
+                                data_ = line_split[4]
+                                tbw = "{" + QUERIED_NAME_KEY + "\"" + queried_name + "\", " \
+                                    + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
+                                    + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "},"
+                                body = body + "\n\t\t" + tbw
+                                # if len(blocks) < 4:
+                                #     if block_split[k]:
+                            else:
+                                pass
+                        query_tbr = query_tbr + body    
+
+                    subheader = "\n\t" + "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
+                    query_tbr = subheader + query_tbr[:len(query_tbr) - 1] + "]},"
+                    tbr = tbr + query_tbr
+                header = "\n" + "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
+                        + success + ", " + QUERIES_KEY + "[ "
+                tbr = header + tbr[:len(tbr)-1] + "]},"
+                final = final + tbr
+        f.write(final[:len(final)-1] + "]")
+
+    else:
+        for i in range(0, len(hostnames)):
+            for j in range(0, 5):
+                tr = subprocess.Popen(
+                    ["dig", "+trace", "+tries=1", "+nofail", hostnames[i].split("\n")[0]],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                out, error = tr.communicate()
+                success = "true"
+                tbr = ""
+                blocks = out.split("\n\n")
+                for b in range(0, len(blocks)):
+                    block = blocks[b]
+                    body = ""
+                    block_split = block.split("\n")
+                    for k in range(0, len(block_split)):
+                        line = block_split[k]
+                        line_split = line.split()
+                        # IF FIRST LINE OF QUERY
+                        if len(line_split) == 0 or line_split[0] == ";":
                             continue
-                    else:
-                        queried_name = line_split[0]
-                        ttl_ = line_split[1]
-                        type_ = line_split[3]
-                        data_ = line_split[4]
-                        body = body + "{" + QUERIED_NAME_KEY + "\"" + queried_name + "\", " \
-                            + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
-                            + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "}"
+                        elif line_split[0] == ";;":
+                            if line_split[1] == "Received":
+                                body = "{" + TIME_KEY + line_split[len(line_split) - 2] + ", " \
+                                       + ANSWERS_KEY + "[" + body + "]}"
+                                if b < (len(blocks) - 2):
+                                    body += ", "
+                            else:
+                                continue
+                        else:
+                            queried_name = line_split[0]
+                            ttl_ = line_split[1]
+                            type_ = line_split[3]
+                            data_ = line_split[4]
+                            body = body + "{" + QUERIED_NAME_KEY + "\"" + queried_name + "\", " \
+                                + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
+                                + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "}"
 
-                    if k < (len(block_split) - 2):
-                        body += ", "
+                        if k < (len(block_split) - 2):
+                            body += ", "
 
-                tbr += body
-            n = "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
-                + success + ", " + QUERIES_KEY + "["
-            tbr = n + tbr + "]}"
-            if not (j == 4 and i == len(hostnames) - 1):
-                tbr += ", "
-            f.write(tbr)
-    f.write("]")
+                    tbr += body
+                n = "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
+                    + success + ", " + QUERIES_KEY + "["
+                tbr = n + tbr + "]}"
+                if not (j == 4 and i == len(hostnames) - 1):
+                    tbr += ", "
+                f.write(tbr)
+        f.write("]")
     f.close()
 
 
@@ -262,7 +326,7 @@ def count_different_dns_responses(filename1, filename2):
 
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "dns_output_2.json")
-    print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
+    # print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
     # get_average_ttls("test_result.json")
     # get_average_times("test_result.json")
     # generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
