@@ -220,17 +220,23 @@ def count_different_dns_responses(filename1, filename2):
     f1_query_differences = 0
     total_query_differences = 0
     s1 = set()
+    d = ""
     name_to_set = {}
     curr_name = ""
+    seen_diff = False
     for name_index in range(0, len(f1_parsed_json)):
         name = f1_parsed_json[name_index]['Name']
-        if curr_name != name:
-            if len(s1) > 1:
-                f1_query_differences += 1
+        if not curr_name == name:
+            print "curr_name: "+ curr_name
+            print "name: "+name
             if curr_name != "":
                 name_to_set[curr_name] = s1
             s1 = set()
+            d = ""
             curr_name = name
+            seen_diff = False
+        if seen_diff:
+            continue
         queries = f1_parsed_json[name_index]['Queries']
         for query_index in range(0, len(queries)):
             answers = queries[query_index]['Answers']
@@ -239,6 +245,13 @@ def count_different_dns_responses(filename1, filename2):
                 data = answers[answer_index]['Data']
                 if type == 'CNAME' or type == 'A':
                     s1.add(data)
+                    if curr_name == name:
+                        print "1 curr_name: "+curr_name
+                        print "2 name: "+name
+                        if d == data:
+                            f1_query_differences += 1
+                            seen_diff = True
+                    d = data
     s2 = set()
     curr_name = ""
     for name_index in range(0, len(f2_parsed_json)):
