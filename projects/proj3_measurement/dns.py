@@ -58,8 +58,6 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
                             if b < (len(blocks) - 2):
                                 body += ", "
                         else:
-                            # did not receive the packet
-                            success = 'false'
                             continue
                     else:
                         queried_name = line_split[0]
@@ -214,14 +212,35 @@ the terminating entries (A or CNAME records for the hostname) in the two sets of
 filenames. The function should return a list of two values.
 """
 
+
 def count_different_dns_responses(filename1, filename2):
+    f1 = open(filename1, 'r')
+    f2 = open(filename2, 'r')
+    f1_parsed_json = json.loads(f1.read())
+    f2_parsed_json = json.loads(f2.read())
+    f1_query_differences = 0
+    for name_index in range(0, len(f1_parsed_json)):
+        name = f1_parsed_json[name_index]['Name']
+        queries = f1_parsed_json[name_index]['Queries']
+        for query_index in range(0, len(queries)):
+            time = queries[query_index]['Time in millis']
+            answers = queries[query_index]['Answers']
+            for answer_index in range(0, len(answers)):
+                type = answers[answer_index]['Type']
+                data = answers[answer_index]['Data']
+                if type == 'CNAME' or type == 'A':
+                    sum_final_time += time
+                    num_of_finals += 1
+                sum_total_time += time
+        total_times.append(sum_total_time)
+        final_times.append(sum_final_time)
 
     pass
 
 
 if __name__ == "__main__":
-    # run_dig("alexa_top_100", "test_result.json")
+    run_dig("alexa_top_100", "dns_output_2.json")
     # get_average_ttls("test_result.json")
     # get_average_times("test_result.json")
-    generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
+    # generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
     pass
