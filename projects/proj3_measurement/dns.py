@@ -2,6 +2,7 @@
 import subprocess
 import json
 import matplotlib.pyplot as plot
+import re
 
 # KEYS FROM utils.py
 NAME_KEY = "\"Name\": "
@@ -23,16 +24,21 @@ dns_query_server: an optional argument that specifies the DNS server to query
 
 
 def run_dig(hostname_filename, output_filename, dns_query_server=None):
+    PATTERN_TIME = re.compile("Query time (\d+) msec")
+    PATTERN_STATUS = re.compile("status: NOERROR")
+    PATTERN_ANSWER_SECTION = re.compile("ANSWER SECTION:")
+    PATTERN_ADD_SECTION = re.compile("ADDITIONAL SECTION:")
+    
     f = open(output_filename, 'w+')
 
     host_file = open(hostname_filename, 'r')
     hostnames = host_file.readlines()
 
     f.write("[")
-        if dns_query_server != None:
+    if dns_query_server != None:
         final = ""
         for i in range(0, len(hostnames)):
-            for j in range(0, 2):
+            for j in range(0, 5):
                 tr = subprocess.Popen(
                     ["dig", hostnames[i].split("\n")[0], dns_query_server],
                     stdout=subprocess.PIPE,
@@ -76,18 +82,21 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
                                 tbw = "{" + QUERIED_NAME_KEY + "\"" + queried_name + "\", " \
                                     + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
                                     + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "},"
-                                body = body + "\n\t\t" + tbw
+                                body = body + tbw
+                                # body = body + "\n\t\t" + tbw
                                 # if len(blocks) < 4:
                                 #     if block_split[k]:
                             else:
                                 pass
                         query_tbr = query_tbr + body    
 
-                    subheader = "\n\t" + "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
+                    # subheader = "\n\t" + "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
+                    subheader = "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
                     query_tbr = subheader + query_tbr[:len(query_tbr) - 1] + "]},"
                     tbr = tbr + query_tbr
-                header = "\n" + "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
-                        + success + ", " + QUERIES_KEY + "[ "
+                # header = "\n" + "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
+                header = "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
+                        + success + ", " + QUERIES_KEY + "["
                 tbr = header + tbr[:len(tbr)-1] + "]},"
                 final = final + tbr
         f.write(final[:len(final)-1] + "]")
@@ -330,4 +339,5 @@ if __name__ == "__main__":
     # get_average_ttls("test_result.json")
     # get_average_times("test_result.json")
     # generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
+    run_dig("alexa_top_3", "etest.json", "201.93.174.242")
     pass
