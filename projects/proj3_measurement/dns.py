@@ -3,7 +3,6 @@ import subprocess
 import json
 import matplotlib.pyplot as plot
 
-
 # KEYS FROM utils.py
 NAME_KEY = "\"Name\": "
 SUCCESS_KEY = "\"Success\": "
@@ -219,27 +218,51 @@ def count_different_dns_responses(filename1, filename2):
     f1_parsed_json = json.loads(f1.read())
     f2_parsed_json = json.loads(f2.read())
     f1_query_differences = 0
+    total_query_differences = 0
+    s1 = set()
+    name_to_set = {}
+    curr_name = ""
     for name_index in range(0, len(f1_parsed_json)):
         name = f1_parsed_json[name_index]['Name']
+        if curr_name != name:
+            if len(s1) > 1:
+                f1_query_differences += 1
+            if curr_name != "":
+                name_to_set[curr_name] = s1
+            s1 = set()
+            curr_name = name
         queries = f1_parsed_json[name_index]['Queries']
         for query_index in range(0, len(queries)):
-            time = queries[query_index]['Time in millis']
             answers = queries[query_index]['Answers']
             for answer_index in range(0, len(answers)):
                 type = answers[answer_index]['Type']
                 data = answers[answer_index]['Data']
                 if type == 'CNAME' or type == 'A':
-                    sum_final_time += time
-                    num_of_finals += 1
-                sum_total_time += time
-        total_times.append(sum_total_time)
-        final_times.append(sum_final_time)
-
-    pass
+                    s1.add(data)
+    s2 = set()
+    curr_name = ""
+    for name_index in range(0, len(f2_parsed_json)):
+        name = f2_parsed_json[name_index]['Name']
+        if curr_name != name:
+            if curr_name != "":
+                if name_to_set[curr_name] != s2:
+                    total_query_differences += 1
+            s2 = set()
+            curr_name = name
+        queries = f2_parsed_json[name_index]['Queries']
+        for query_index in range(0, len(queries)):
+            answers = queries[query_index]['Answers']
+            for answer_index in range(0, len(answers)):
+                type = answers[answer_index]['Type']
+                data = answers[answer_index]['Data']
+                if type == 'CNAME' or type == 'A':
+                    s2.add(data)
+    return [f1_query_differences, total_query_differences]
 
 
 if __name__ == "__main__":
-    run_dig("alexa_top_100", "dns_output_2.json")
+    # run_dig("alexa_top_100", "dns_output_2.json")
+    print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
     # get_average_ttls("test_result.json")
     # get_average_times("test_result.json")
     # generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
