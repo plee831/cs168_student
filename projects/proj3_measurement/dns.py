@@ -293,11 +293,9 @@ def count_different_dns_responses(filename1, filename2):
     f2_parsed_json = json.loads(f2.read())
     response = count_differences_helper(f1_parsed_json)
     name_to_diff = response[0]
-    print name_to_diff
     f1_query_differences = response[1]
     response2 = count_differences_helper(f2_parsed_json)
     name_to_diff2 = response2[0]
-    print name_to_diff2
     f2_query_differences = response2[1]
     for name in name_to_diff2.keys():
         if name in name_to_diff:

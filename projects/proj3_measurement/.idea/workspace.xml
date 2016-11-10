@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0c7ef2b5-e06b-4d17-9a2c-38b54487c107" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.pdf" afterPath="$PROJECT_DIR$/readme/README.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.synctex.gz" afterPath="$PROJECT_DIR$/readme/README.synctex.gz" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns.py" afterPath="$PROJECT_DIR$/dns.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns_output_1.json" afterPath="$PROJECT_DIR$/dns_output_1.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.fdb_latexmk" afterPath="$PROJECT_DIR$/readme/README.fdb_latexmk" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.log" afterPath="$PROJECT_DIR$/readme/README.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.tex" afterPath="$PROJECT_DIR$/readme/README.tex" />
     </list>
     <ignored path="proj3_measurement.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -35,8 +29,8 @@
           <file leaf-file-name="dns.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/dns.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="509">
-                  <caret line="304" column="41" selection-start-line="304" selection-start-column="41" selection-end-line="304" selection-end-column="41" />
+                <state relative-caret-position="449">
+                  <caret line="295" column="10" selection-start-line="295" selection-start-column="10" selection-end-line="295" selection-end-column="10" />
                   <folding>
                     <element signature="e#24#41#0" expanded="true" />
                   </folding>
@@ -859,8 +853,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dns.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="509">
-          <caret line="304" column="41" selection-start-line="304" selection-start-column="41" selection-end-line="304" selection-end-column="41" />
+        <state relative-caret-position="449">
+          <caret line="295" column="10" selection-start-line="295" selection-start-column="10" selection-end-line="295" selection-end-column="10" />
           <folding>
             <element signature="e#24#41#0" expanded="true" />
           </folding>
