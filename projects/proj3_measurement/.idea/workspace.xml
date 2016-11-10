@@ -2,7 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0c7ef2b5-e06b-4d17-9a2c-38b54487c107" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.pdf" afterPath="$PROJECT_DIR$/readme/README.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.synctex.gz" afterPath="$PROJECT_DIR$/readme/README.synctex.gz" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns.py" afterPath="$PROJECT_DIR$/dns.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns_output_1.json" afterPath="$PROJECT_DIR$/dns_output_1.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.fdb_latexmk" afterPath="$PROJECT_DIR$/readme/README.fdb_latexmk" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.log" afterPath="$PROJECT_DIR$/readme/README.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.tex" afterPath="$PROJECT_DIR$/readme/README.tex" />
     </list>
     <ignored path="proj3_measurement.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -22,14 +29,14 @@
     <favorites_list name="proj3_measurement" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.51597744">
+    <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="dns.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/dns.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="232">
-                  <caret line="243" column="42" selection-start-line="243" selection-start-column="42" selection-end-line="243" selection-end-column="42" />
+                <state relative-caret-position="509">
+                  <caret line="304" column="41" selection-start-line="304" selection-start-column="41" selection-end-line="304" selection-end-column="41" />
                   <folding>
                     <element signature="e#24#41#0" expanded="true" />
                   </folding>
@@ -50,18 +57,8 @@
           <file leaf-file-name="project3_tests.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/project3_tests.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1125">
+                <state relative-caret-position="-797">
                   <caret line="78" column="28" selection-start-line="78" selection-start-column="28" selection-end-line="78" selection-end-column="28" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="rtt_b_raw.json" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/rtt_b_raw.json">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="285">
-                  <caret line="0" column="1531" selection-start-line="0" selection-start-column="1531" selection-end-line="0" selection-end-column="1531" />
                   <folding />
                 </state>
               </provider>
@@ -70,45 +67,13 @@
         </leaf>
       </split-first>
       <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/utils.py">
+        <leaf>
+          <file leaf-file-name="dns_output_1.json" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/dns_output_1.json">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="0">
-                  <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                <state relative-caret-position="102">
+                  <caret line="0" column="1319205" selection-start-line="0" selection-start-column="1319205" selection-end-line="0" selection-end-column="1319205" />
                   <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="test_result.json" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/test_result.json">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1259">
-                  <caret line="0" column="82568" selection-start-line="0" selection-start-column="82567" selection-end-line="0" selection-end-column="82568" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="dns_output_2.json" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/dns_output_2.json">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-570">
-                  <caret line="0" column="784" selection-start-line="0" selection-start-column="784" selection-end-line="0" selection-end-column="784" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="rtts.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/rtts.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="180">
-                  <caret line="128" column="33" selection-start-line="124" selection-start-column="8" selection-end-line="128" selection-end-column="33" />
-                  <folding>
-                    <element signature="e#24#33#0" expanded="true" />
-                  </folding>
                 </state>
               </provider>
             </entry>
@@ -140,8 +105,9 @@
         <option value="$PROJECT_DIR$/test_result.json" />
         <option value="$PROJECT_DIR$/project3_tests.py" />
         <option value="$PROJECT_DIR$/submit_dns_output_1.json" />
-        <option value="$PROJECT_DIR$/dns_output_1.json" />
         <option value="$PROJECT_DIR$/dns_output_2.json" />
+        <option value="$PROJECT_DIR$/dns_query_server_dig.json" />
+        <option value="$PROJECT_DIR$/dns_output_1.json" />
         <option value="$PROJECT_DIR$/dns.py" />
       </list>
     </option>
@@ -153,10 +119,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="33" />
-    <option name="y" value="23" />
-    <option name="width" value="1247" />
-    <option name="height" value="777" />
+    <option name="x" value="-1680" />
+    <option name="y" value="-434" />
+    <option name="width" value="1680" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -202,34 +168,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="proj3_measurement" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="proj3_measurement" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="readme" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="proj3_measurement" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="proj3_measurement" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="examples" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
@@ -240,6 +178,7 @@
     <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="FullScreen" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -470,10 +409,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="33" y="23" width="1247" height="777" extended-state="0" />
+    <frame x="-1680" y="-434" width="1680" height="1050" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.11701245" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.08608059" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5021971" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -481,7 +420,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329927" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19124088" sideWeight="0.49780288" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26836735" sideWeight="0.49780288" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -547,14 +486,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test_result.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/dig_sample_output.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -839,30 +770,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/rtt_b_raw.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="0" column="1531" selection-start-line="0" selection-start-column="1531" selection-end-line="0" selection-end-column="1531" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/project3_tests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1125">
-          <caret line="78" column="28" selection-start-line="78" selection-start-column="28" selection-end-line="78" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/rtts.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -878,22 +785,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/part_2_experiments.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="25" selection-start-line="13" selection-start-column="25" selection-end-line="13" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dns_output_1.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="0" column="1498773" selection-start-line="0" selection-start-column="1498773" selection-end-line="0" selection-end-column="1498773" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/dig_sample_output.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="125">
@@ -902,26 +793,74 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test_result.json">
+    <entry file="file://$PROJECT_DIR$/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1259">
-          <caret line="0" column="82568" selection-start-line="0" selection-start-column="82567" selection-end-line="0" selection-end-column="82568" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rtt_b_raw.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="0" column="1531" selection-start-line="0" selection-start-column="1531" selection-end-line="0" selection-end-column="1531" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dns_query_server_dig.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="4573" selection-start-line="0" selection-start-column="4573" selection-end-line="0" selection-end-column="4573" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/part_2_experiments.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="25" selection-start-line="13" selection-start-column="25" selection-end-line="13" selection-end-column="25" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dns_output_2.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-570">
-          <caret line="0" column="784" selection-start-line="0" selection-start-column="784" selection-end-line="0" selection-end-column="784" />
+        <state relative-caret-position="-2003">
+          <caret line="0" column="60493" selection-start-line="0" selection-start-column="60484" selection-end-line="0" selection-end-column="60493" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test_result.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6368">
+          <caret line="0" column="1519459" selection-start-line="0" selection-start-column="1519454" selection-end-line="0" selection-end-column="1519459" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project3_tests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-797">
+          <caret line="78" column="28" selection-start-line="78" selection-start-column="28" selection-end-line="78" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dns_output_1.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="0" column="1319205" selection-start-line="0" selection-start-column="1319205" selection-end-line="0" selection-end-column="1319205" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dns.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
-          <caret line="243" column="42" selection-start-line="243" selection-start-column="42" selection-end-line="243" selection-end-column="42" />
+        <state relative-caret-position="509">
+          <caret line="304" column="41" selection-start-line="304" selection-start-column="41" selection-end-line="304" selection-end-column="41" />
           <folding>
             <element signature="e#24#41#0" expanded="true" />
           </folding>

@@ -28,7 +28,7 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
     PATTERN_STATUS = re.compile("status: NOERROR")
     PATTERN_ANSWER_SECTION = re.compile("ANSWER SECTION:")
     PATTERN_ADD_SECTION = re.compile("ADDITIONAL SECTION:")
-    
+
     f = open(output_filename, 'w+')
 
     host_file = open(hostname_filename, 'r')
@@ -49,12 +49,12 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
 
                 queries = out.split(";; Got answer:");
                 for q in range(1, len(queries)):
-                    success = "false" #WILL CHANGE WHEN WE PARSE
+                    success = "false"  # WILL CHANGE WHEN WE PARSE
                     time_tbr = 0
 
-                    query_tbr = "" #WILL BE WRITTENT O FILE
-                    query = queries[q] 
-                    
+                    query_tbr = ""  # WILL BE WRITTENT O FILE
+                    query = queries[q]
+
                     blocks = out.split("\n\n")
                     for b in range(0, len(blocks)):
                         block = blocks[b]
@@ -65,13 +65,14 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
                             line = block_split[k]
                             line_split = line.split()
 
-                            if b == 0 or b == (len(blocks) - 1): #FIRST BLOCK or LAST BLOCK
+                            if b == 0 or b == (len(blocks) - 1):  # FIRST BLOCK or LAST BLOCK
                                 if PATTERN_TIME.search(line):
                                     time_tbr = PATTERN_TIME.search(line).groups()[0]
                                 if PATTERN_STATUS.search(line):
                                     success = "true"
 
-                            elif PATTERN_ANSWER_SECTION.search(block_split[0]) or PATTERN_ADD_SECTION.search(block_split[0]):
+                            elif PATTERN_ANSWER_SECTION.search(block_split[0]) or PATTERN_ADD_SECTION.search(
+                                    block_split[0]):
                                 if len(line_split) == 0 or line_split[0] == ";;":
                                     continue
 
@@ -80,26 +81,26 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
                                 type_ = line_split[3]
                                 data_ = line_split[4]
                                 tbw = "{" + QUERIED_NAME_KEY + "\"" + queried_name + "\", " \
-                                    + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
-                                    + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "},"
-                                body = body + tbw
+                                      + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
+                                      + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "},"
+                                body += tbw
                                 # body = body + "\n\t\t" + tbw
                                 # if len(blocks) < 4:
                                 #     if block_split[k]:
                             else:
                                 pass
-                        query_tbr = query_tbr + body    
+                        query_tbr = query_tbr + body
 
-                    # subheader = "\n\t" + "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
+                        # subheader = "\n\t" + "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
                     subheader = "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
                     query_tbr = subheader + query_tbr[:len(query_tbr) - 1] + "]},"
-                    tbr = tbr + query_tbr
+                    tbr += query_tbr
                 # header = "\n" + "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
                 header = "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
-                        + success + ", " + QUERIES_KEY + "["
-                tbr = header + tbr[:len(tbr)-1] + "]},"
-                final = final + tbr
-        f.write(final[:len(final)-1] + "]")
+                         + success + ", " + QUERIES_KEY + "["
+                tbr = header + tbr[:len(tbr) - 1] + "]},"
+                final += tbr
+        f.write(final[:len(final) - 1] + "]")
 
     else:
         for i in range(0, len(hostnames)):
@@ -137,8 +138,8 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
                             type_ = line_split[3]
                             data_ = line_split[4]
                             body = body + "{" + QUERIED_NAME_KEY + "\"" + queried_name + "\", " \
-                                + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
-                                + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "}"
+                                   + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
+                                   + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "}"
 
                         if k < (len(block_split) - 2):
                             body += ", "
@@ -228,7 +229,6 @@ def get_average_times(filename):
     return [sum_total_time / len(parsed_json), sum_final_time / num_of_finals]
 
 
-
 """
 This function should accept json_filename, the name of a json file with output as specified above as input.
 It should generate a graph with a CDF of the distribution of each of the values described in the previous
@@ -277,6 +277,7 @@ def generate_time_cdfs(json_filename, output_filename):
     plot.title("Alexa Top 100 Times CDF")
     plot.savefig(output_filename)
 
+
 """
 This function should take the name of two files that
 each contain json dig output. The idea of this function is to count the number of changes that occur between
@@ -290,67 +291,64 @@ def count_different_dns_responses(filename1, filename2):
     f2 = open(filename2, 'r')
     f1_parsed_json = json.loads(f1.read())
     f2_parsed_json = json.loads(f2.read())
-    f1_query_differences = 0
-    total_query_differences = 0
+    response = count_differences_helper(f1_parsed_json)
+    name_to_diff = response[0]
+    print name_to_diff
+    f1_query_differences = response[1]
+    response2 = count_differences_helper(f2_parsed_json)
+    name_to_diff2 = response2[0]
+    print name_to_diff2
+    f2_query_differences = response2[1]
+    for name in name_to_diff2.keys():
+        if name in name_to_diff:
+            if name_to_diff[name] == 1 and name_to_diff2[name] == 1:
+                f2_query_differences -= 1
+    return [f1_query_differences, f1_query_differences+f2_query_differences]
+
+
+def count_differences_helper(f_parsed_json):
+    f_query_differences = 0
     s1 = set()
-    d = ""
-    name_to_set = {}
+    other_set = set()
+    name_to_diff = {}
     curr_name = ""
-    seen_diff = False
-    for name_index in range(0, len(f1_parsed_json)):
-        name = f1_parsed_json[name_index]['Name']
+    first_pass = True
+    for name_index in range(0, len(f_parsed_json)):
+        name = f_parsed_json[name_index]['Name']
         if not curr_name == name:
-            print "curr_name: "+ curr_name
-            print "name: "+name
-            if curr_name != "":
-                name_to_set[curr_name] = s1
             s1 = set()
-            d = ""
             curr_name = name
+            first_pass = True
             seen_diff = False
         if seen_diff:
             continue
-        queries = f1_parsed_json[name_index]['Queries']
+        other_set = set()
+        queries = f_parsed_json[name_index]['Queries']
         for query_index in range(0, len(queries)):
             answers = queries[query_index]['Answers']
             for answer_index in range(0, len(answers)):
                 type = answers[answer_index]['Type']
-                data = answers[answer_index]['Data']
                 if type == 'CNAME' or type == 'A':
-                    s1.add(data)
-                    if curr_name == name:
-                        print "1 curr_name: "+curr_name
-                        print "2 name: "+name
-                        if d == data:
-                            f1_query_differences += 1
-                            seen_diff = True
-                    d = data
-    s2 = set()
-    curr_name = ""
-    for name_index in range(0, len(f2_parsed_json)):
-        name = f2_parsed_json[name_index]['Name']
-        if curr_name != name:
-            if curr_name != "":
-                if name_to_set[curr_name] != s2:
-                    total_query_differences += 1
-            s2 = set()
-            curr_name = name
-        queries = f2_parsed_json[name_index]['Queries']
-        for query_index in range(0, len(queries)):
-            answers = queries[query_index]['Answers']
-            for answer_index in range(0, len(answers)):
-                type = answers[answer_index]['Type']
-                data = answers[answer_index]['Data']
-                if type == 'CNAME' or type == 'A':
-                    s2.add(data)
-    return [f1_query_differences, total_query_differences]
+                    data = answers[answer_index]['Data']
+                    if first_pass:
+                        s1.add(data)
+                    else:
+                        other_set.add(data)
+        if first_pass:
+            first_pass = False
+        else:
+            if s1 != other_set:
+                name_to_diff[curr_name] = 1
+                f_query_differences += 1
+                seen_diff = True
+    return [name_to_diff, f_query_differences]
 
 
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "dns_output_2.json")
-    # print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
+    print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
     # get_average_ttls("test_result.json")
     # get_average_times("test_result.json")
     # generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
-    run_dig("alexa_top_3", "etest.json", "201.93.174.242")
+    # run_dig("alexa_top_3", "etest.json", "201.93.174.242")
     pass
