@@ -4,6 +4,7 @@ import json
 import matplotlib.pyplot as plot
 import re
 
+
 # KEYS FROM utils.py
 NAME_KEY = "\"Name\": "
 SUCCESS_KEY = "\"Success\": "
@@ -292,29 +293,34 @@ def count_different_dns_responses(filename1, filename2):
     f2 = open(filename2, 'r')
     f1_parsed_json = json.loads(f1.read())
     f2_parsed_json = json.loads(f2.read())
-    response = count_differences_helper(f1_parsed_json)
+    response = count_differences_helper(f1_parsed_json, {})
     name_to_diff = response[0]
     f1_query_differences = response[1]
-    response2 = count_differences_helper(f2_parsed_json)
+    name_to_set1 = response[2]
+    response2 = count_differences_helper(f2_parsed_json, name_to_set1)
     name_to_diff2 = response2[0]
     f2_query_differences = response2[1]
     for name in name_to_diff2.keys():
         if name in name_to_diff:
             if name_to_diff[name] == 1 and name_to_diff2[name] == 1:
                 f2_query_differences -= 1
-    return [f1_query_differences, f1_query_differences+f2_query_differences]
+    return [f1_query_differences, f1_query_differences + f2_query_differences]
 
 
-def count_differences_helper(f_parsed_json):
+def count_differences_helper(f_parsed_json, past_diff):
     f_query_differences = 0
     s1 = set()
     other_set = set()
     name_to_diff = {}
     curr_name = ""
     first_pass = True
+    name_to_set = {}
+    seen_diff = False
     for name_index in range(0, len(f_parsed_json)):
         name = f_parsed_json[name_index]['Name']
         if not curr_name == name:
+            if curr_name != "" and not seen_diff:
+                name_to_set[curr_name] = s1
             s1 = set()
             curr_name = name
             first_pass = True
@@ -340,12 +346,17 @@ def count_differences_helper(f_parsed_json):
                 name_to_diff[curr_name] = 1
                 f_query_differences += 1
                 seen_diff = True
-    return [name_to_diff, f_query_differences]
+            elif curr_name in past_diff:
+                if past_diff[curr_name] != s1:
+                    name_to_diff[curr_name] = 1
+                    f_query_differences += 1
+                    seen_diff = True
+    return [name_to_diff, f_query_differences, name_to_set]
 
 
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "dns_output_2.json")
-    # print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
+    print count_different_dns_responses("dns_output_1.json", "dig_from_france.json")
     # get_average_ttls("test_result.json")
     # print get_average_times("test_result.json")
     # generate_time_cdfs("dns_output_1.json", "alexa_top_100_times.pdf")

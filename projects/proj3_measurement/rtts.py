@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import subprocess
-import numpy as np
 import matplotlib.pyplot as plot
 
 
@@ -17,7 +16,6 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
     f2.write('{')
 
     for i in range(0, len(hostnames)):
-        print hostnames[i]
         f1.write("\"" + hostnames[i] + "\": [")
         ping = subprocess.Popen(
             ["ping", "-c", str(num_packets), hostnames[i]],
@@ -142,7 +140,6 @@ if __name__ == "__main__":
     # f = open("alexa_top_100", "r")
     # alexa = [x for x in f.read().split("\n")]
     # alexa.remove("")
-    # print ("part a starting")
     # run_ping(alexa, '10', 'rtt_a_raw.json', 'rtt_a_agg.json')
-    # print ("part b starting")
-    # run_ping(["google.com", "todayhumor.co.kr", "zanvarsity.ac.tz", "taobao.com"], '500', 'rtt_b_raw.json', 'rtt_b_agg.json')
+    # run_ping(["google.com", "todayhumor.co.kr", "zanvarsity.ac.tz", \
+    # "taobao.com"], '500', 'rtt_b_raw.json', 'rtt_b_agg.json')
