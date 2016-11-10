@@ -224,8 +224,8 @@ def get_average_times(filename):
                 if type == 'CNAME' or type == 'A':
                     sum_final_time += time
                     num_of_finals += 1
-                sum_total_time += time
-    # printed results - [3791, 86]
+            sum_total_time += time
+    # printed results - [587, 86]
     return [sum_total_time / len(parsed_json), sum_final_time / num_of_finals]
 
 
@@ -255,7 +255,7 @@ def generate_time_cdfs(json_filename, output_filename):
                 if type == 'CNAME' or type == 'A':
                     sum_final_time += time
                     num_of_finals += 1
-                sum_total_time += time
+            sum_total_time += time
         total_times.append(sum_total_time)
         final_times.append(sum_final_time)
     sorted_total_times = sorted(total_times)
@@ -272,8 +272,9 @@ def generate_time_cdfs(json_filename, output_filename):
     plot.plot(sorted_final_times, final_y_values, label="Final Times")
     plot.legend(loc=4)  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
-    plot.xlabel("Milliseconds")  # Label the x-axis.
+    plot.xlabel("Seconds")  # Label the x-axis.
     plot.ylabel("Cumulative Fraction")  # Label the y-axis.
+    plot.xscale('log')
     plot.title("Alexa Top 100 Times CDF")
     plot.savefig(output_filename)
 
@@ -344,9 +345,9 @@ def count_differences_helper(f_parsed_json):
 
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "dns_output_2.json")
-    print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
+    # print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
     # get_average_ttls("test_result.json")
-    # get_average_times("test_result.json")
-    # generate_time_cdfs("test_result.json", "alexa_top_100_times.pdf")
+    # print get_average_times("test_result.json")
+    # generate_time_cdfs("dns_output_1.json", "alexa_top_100_times.pdf")
     # run_dig("alexa_top_3", "etest.json", "201.93.174.242")
     pass

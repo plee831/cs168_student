@@ -89,15 +89,13 @@ def plot_median_rtt_cdf(agg_ping_results_filename, output_cdf_filename):
     for x_value in median_rtts:
         temp = float(sorted_median_rtts.index(x_value) + 1) / float(len(sorted_median_rtts))
         y_values[sorted_median_rtts.index(x_value)] = temp
-    print sorted_median_rtts
-    print y_values
     plot.plot(sorted_median_rtts, y_values, label='Median RTT\'s')
     plot.legend(loc=4)  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
-    plot.xlabel("Milliseconds")  # Label the x-axis.
+    plot.xlabel("Seconds")  # Label the x-axis.
     plot.ylabel("Cumulative Fraction")  # Label the y-axis.
+    plot.xscale('log')
     plot.title("Median RTT CDF")
-    # plot.show()
     plot.savefig(output_cdf_filename)
 
 
@@ -128,18 +126,18 @@ def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename):
             temp = float(sorted_rtts.index(x_value) + 1) / float(len(sorted_rtts))
             y_values.append(temp)
         plot.plot(sorted_rtts, y_values, label=hostname)
-    plot.legend(loc=4)  # This shows the legend on the plot.
+    plot.legend(loc=2)  # This shows the legend on the plot.
     plot.grid()  # Show grid lines, which makes the plot easier to read.
-    plot.xlabel("Milliseconds")  # Label the x-axis.
+    plot.xlabel("Seconds")  # Label the x-axis.
     plot.ylabel("Cumulative Fraction")  # Label the y-axis.
+    plot.xscale('log')
     plot.title("RTT CDF")
-    # plot.show()
     plot.savefig(output_cdf_filename)
 
 
 if __name__ == "__main__":
-    plot_median_rtt_cdf("rtt_a_agg.json", "rtt_a_agg_ping_results.pdf")
-    # plot_ping_cdf("rtt_b_raw.json", "rtt_b_raw_results.pdf")
+    # plot_median_rtt_cdf("rtt_a_agg.json", "rtt_a_agg_ping_results.pdf")
+    plot_ping_cdf("rtt_b_raw.json", "rtt_b_raw_results.pdf")
 
     # f = open("alexa_top_100", "r")
     # alexa = [x for x in f.read().split("\n")]

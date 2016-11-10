@@ -2,8 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0c7ef2b5-e06b-4d17-9a2c-38b54487c107" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alexa_top_100_times.pdf" afterPath="$PROJECT_DIR$/alexa_top_100_times.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.pdf" afterPath="$PROJECT_DIR$/readme/README.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.synctex.gz" afterPath="$PROJECT_DIR$/readme/README.synctex.gz" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/alexa_top_100_times.pdf" afterPath="$PROJECT_DIR$/readme/alexa_top_100_times.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/rtt_a_agg_ping_results.pdf" afterPath="$PROJECT_DIR$/readme/rtt_a_agg_ping_results.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/rtt_b_raw_results.pdf" afterPath="$PROJECT_DIR$/readme/rtt_b_raw_results.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rtt_a_agg_ping_results.pdf" afterPath="$PROJECT_DIR$/rtt_a_agg_ping_results.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rtt_b_raw_results.pdf" afterPath="$PROJECT_DIR$/rtt_b_raw_results.pdf" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns.py" afterPath="$PROJECT_DIR$/dns.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.fdb_latexmk" afterPath="$PROJECT_DIR$/readme/README.fdb_latexmk" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.log" afterPath="$PROJECT_DIR$/readme/README.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.tex" afterPath="$PROJECT_DIR$/readme/README.tex" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rtts.py" afterPath="$PROJECT_DIR$/rtts.py" />
     </list>
     <ignored path="proj3_measurement.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -29,8 +41,8 @@
           <file leaf-file-name="dns.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/dns.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="449">
-                  <caret line="295" column="10" selection-start-line="295" selection-start-column="10" selection-end-line="295" selection-end-column="10" />
+                <state relative-caret-position="554">
+                  <caret line="350" column="20" selection-start-line="350" selection-start-column="0" selection-end-line="351" selection-end-column="0" />
                   <folding>
                     <element signature="e#24#41#0" expanded="true" />
                   </folding>
@@ -58,6 +70,18 @@
               </provider>
             </entry>
           </file>
+          <file leaf-file-name="rtts.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/rtts.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="479">
+                  <caret line="140" column="0" selection-start-line="140" selection-start-column="0" selection-end-line="140" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#24#33#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
         </leaf>
       </split-first>
       <split-second>
@@ -65,7 +89,7 @@
           <file leaf-file-name="dns_output_1.json" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/dns_output_1.json">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="102">
+                <state relative-caret-position="42">
                   <caret line="0" column="1319205" selection-start-line="0" selection-start-column="1319205" selection-end-line="0" selection-end-column="1319205" />
                   <folding />
                 </state>
@@ -94,7 +118,6 @@
         <option value="$PROJECT_DIR$/google.json" />
         <option value="$PROJECT_DIR$/rtt_a_raw.json" />
         <option value="$PROJECT_DIR$/readme/README.tex" />
-        <option value="$PROJECT_DIR$/rtts.py" />
         <option value="$PROJECT_DIR$/traceroute.py" />
         <option value="$PROJECT_DIR$/test_result.json" />
         <option value="$PROJECT_DIR$/project3_tests.py" />
@@ -102,6 +125,7 @@
         <option value="$PROJECT_DIR$/dns_output_2.json" />
         <option value="$PROJECT_DIR$/dns_query_server_dig.json" />
         <option value="$PROJECT_DIR$/dns_output_1.json" />
+        <option value="$PROJECT_DIR$/rtts.py" />
         <option value="$PROJECT_DIR$/dns.py" />
       </list>
     </option>
@@ -159,6 +183,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="proj3_measurement" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="proj3_measurement" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="proj3_measurement" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="readme" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -764,16 +802,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/rtts.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="128" column="33" selection-start-line="124" selection-start-column="8" selection-end-line="128" selection-end-column="33" />
-          <folding>
-            <element signature="e#24#33#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example_cdf_dns_ttl.png">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -845,16 +873,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dns_output_1.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
+        <state relative-caret-position="42">
           <caret line="0" column="1319205" selection-start-line="0" selection-start-column="1319205" selection-end-line="0" selection-end-column="1319205" />
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/rtts.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="479">
+          <caret line="140" column="0" selection-start-line="140" selection-start-column="0" selection-end-line="140" selection-end-column="0" />
+          <folding>
+            <element signature="e#24#33#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/dns.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="449">
-          <caret line="295" column="10" selection-start-line="295" selection-start-column="10" selection-end-line="295" selection-end-column="10" />
+        <state relative-caret-position="554">
+          <caret line="350" column="20" selection-start-line="350" selection-start-column="0" selection-end-line="351" selection-end-column="0" />
           <folding>
             <element signature="e#24#41#0" expanded="true" />
           </folding>
