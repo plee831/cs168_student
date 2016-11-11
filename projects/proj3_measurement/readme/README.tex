@@ -19,7 +19,7 @@
 
 \myrule\medskip
 \noindent{\lgh CS168 | Fall 2016 \hfill Introduction to Internet: Architecture \& Protocols\\[0.5ex]
-Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
+Project 3: Measurement}\hfill{\scshape Peter B. Lee \& Eric Om | October 2016}
 \myrule
 \section{Round Trip Time}
 \begin{enumerate}
@@ -44,13 +44,13 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
         For "taobao.com", median RTT: 668.561 ms, maximum RTT: 74.398 ms. \\ 
         It's loss rate is 0.8.
         \item CDF on next page.
-        \item
+    \end{enumerate}
+    \item
         \begin{enumerate}
             \item
             The multiplier for google.com is $3.18537033 * 10^{-10} s^{2}/m$. The multipler for zanvarsity.ac.tz is $2.26999039 * 10^{-9} s^{2}/m$.
             \item
             The reason why the ping time is not equal to the speed of light time is due to several factors, one example being distance that the packets have to travel back and forth, using cables and routers. Due to this, trying to ping a location that is farther away such as zanvaristy.ac.tz's servers compared to google.com's yields for a greater median RTT. This would mean that a website's "physical location" contributes to the amount of time it takes to ping the website.
-        \end{enumerate}
     \end{enumerate}
     \includepdf[pages=1]{rtt_b_raw_results.pdf}
 \end{enumerate}
@@ -75,7 +75,7 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
         "www.vutbr.cz": 1\\
         "Zanvarsity.ac.tz": 5
         \item Using one sentence, please explain one advantage of having stable routes.\\
-            The ASes of Berkeley are directly connected to
+            By utilizing stable routes it is easier to monitor link-failures for more reliable transportation.
     \end{enumerate}
     \item Experiment B
     \begin{enumerate}
@@ -110,9 +110,11 @@ Project 3: Measurement}\hfill{\scshape Peter B. Lee | October 2016}
         \item
         During the first trial, 6 answers changed. 11 names gave different answers at some point in the two trials.
         \item
-        When you run the trace with a different countries server, you find that when you count the differences, there are none for the different countries output, but when you compare that with one from the US, you get differences. When we ran this in count different dns responses("dns output other server.json", "dns output 1.json"), we get [0, 36], when we used server = 192.203.138.11. 
+        When you run the trace with a different countries server, you find that when you count the differences, there are none for the different countries output, but when you compare that with one from the US, you get differences. When we ran this in count\_different\_dns\_responses("dns\_output\_other\_server.json", "dns\_output\_1.json"), we get [0, 36], when we used server = 192.203.138.11. 
         \item
+        The Korean DNS server we queried probably has a different set of A records to use to refer us to an optimal IP address based on our location. 
         \item
+        The DNS resolution times would be shorter because instead of following referrals starting from a root server to find the ip address of the hostname we queried, it would query a target name server and use the returned ip address.
     \end{enumerate}
 
 \end{document}
