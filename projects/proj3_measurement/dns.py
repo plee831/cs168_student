@@ -356,9 +356,11 @@ def count_differences_helper(f_parsed_json, past_diff):
 
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "dns_output_2.json")
-    print count_different_dns_responses("dns_output_1.json", "dig_from_france.json")
+    # print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
+    print count_different_dns_responses("dns_output_other_server.json", "dns_output_1.json")
     # get_average_ttls("test_result.json")
     # print get_average_times("test_result.json")
+    # run_dig("alexa_top_100", "dns_output_other_server.json", "A ")
     # generate_time_cdfs("dns_output_1.json", "alexa_top_100_times.pdf")
     # run_dig("alexa_top_3", "etest.json", "201.93.174.242")
     pass

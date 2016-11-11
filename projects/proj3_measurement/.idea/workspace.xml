@@ -4,8 +4,6 @@
     <list default="true" id="0c7ef2b5-e06b-4d17-9a2c-38b54487c107" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns.py" afterPath="$PROJECT_DIR$/dns.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rtts.py" afterPath="$PROJECT_DIR$/rtts.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/traceroute.py" afterPath="$PROJECT_DIR$/traceroute.py" />
     </list>
     <ignored path="proj3_measurement.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -31,11 +29,21 @@
           <file leaf-file-name="dns.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/dns.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="371">
-                  <caret line="350" column="0" selection-start-line="350" selection-start-column="0" selection-end-line="350" selection-end-column="0" />
+                <state relative-caret-position="386">
+                  <caret line="362" column="79" selection-start-line="362" selection-start-column="64" selection-end-line="362" selection-end-column="79" />
                   <folding>
                     <element signature="e#24#41#0" expanded="true" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="dns_output_other_server.json" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/dns_output_other_server.json">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -516,16 +524,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/rtts.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2055">
-          <caret line="140" column="29" selection-start-line="140" selection-start-column="29" selection-end-line="140" selection-end-column="29" />
-          <folding>
-            <element signature="e#24#33#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/spec.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
         <state split_layout="FIRST">
@@ -887,10 +885,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/dns_output_other_server.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/dns.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="371">
-          <caret line="350" column="0" selection-start-line="350" selection-start-column="0" selection-end-line="350" selection-end-column="0" />
+        <state relative-caret-position="386">
+          <caret line="362" column="79" selection-start-line="362" selection-start-column="64" selection-end-line="362" selection-end-column="79" />
           <folding>
             <element signature="e#24#41#0" expanded="true" />
           </folding>

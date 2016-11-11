@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1478767699 "README.tex" "README.pdf" "README" 1478767700
+["pdflatex"] 1478822759 "README.tex" "README.pdf" "README" 1478822760
   "./alexa_top_100_times.pdf" 1478767678 18990 1a393e03a6bc63ec6a5c4002fba598f8 ""
   "./rtt_a_agg_ping_results.pdf" 1478767612 13914 692372025e707b871eeeb5daf4fc2ad0 ""
   "./rtt_b_raw_results.pdf" 1478767622 24061 3d6fbf23911a6c55f4cb7d386a418e6c ""
@@ -81,12 +81,12 @@
   "/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1432479641 1764542 91654ba72bdb667e84ea24f076ae16d8 ""
   "/usr/local/texlive/2015/texmf-var/web2c/pdftex/pdflatex.fmt" 1432479681 3849859 39a7d258195bde2394e244961601fbc5 ""
   "/usr/local/texlive/2015/texmf.cnf" 1432479636 577 0d611272082f3cdb8e80e09a3c69cf07 ""
-  "README.aux" 1478767700 222 257a125f6a93d6d70e4b967395d64650 ""
-  "README.tex" 1478767232 4829 4e22b312e333fc5f060c6cd6eecd4fce ""
+  "README.aux" 1478822760 222 257a125f6a93d6d70e4b967395d64650 ""
+  "README.tex" 1478822759 5219 08fe014017e22bea2ebca188b38d1316 ""
   "alexa_top_100_times.pdf" 1478767678 18990 1a393e03a6bc63ec6a5c4002fba598f8 ""
   "rtt_a_agg_ping_results.pdf" 1478767612 13914 692372025e707b871eeeb5daf4fc2ad0 ""
   "rtt_b_raw_results.pdf" 1478767622 24061 3d6fbf23911a6c55f4cb7d386a418e6c ""
   (generated)
-  "README.aux"
   "README.pdf"
+  "README.aux"
   "README.log"
