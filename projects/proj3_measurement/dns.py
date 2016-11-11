@@ -41,7 +41,7 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
         for i in range(0, len(hostnames)):
             for j in range(0, 5):
                 tr = subprocess.Popen(
-                    ["dig", hostnames[i].split("\n")[0], dns_query_server],
+                    ["dig", hostnames[i].split("\n")[0], "@"+dns_query_server],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE
                 )
@@ -357,7 +357,7 @@ def count_differences_helper(f_parsed_json, past_diff):
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "dns_output_2.json")
     # print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
-    print count_different_dns_responses("dns_output_other_server.json", "dns_output_1.json")
+    # print count_different_dns_responses("dns_output_other_server.json", "dns_output_1.json")
     # get_average_ttls("test_result.json")
     # print get_average_times("test_result.json")
     # run_dig("alexa_top_100", "dns_output_other_server.json", "A ")
