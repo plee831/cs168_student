@@ -135,7 +135,7 @@ def plot_ping_cdf(raw_ping_results_filename, output_cdf_filename):
 
 if __name__ == "__main__":
     # plot_median_rtt_cdf("rtt_a_agg.json", "rtt_a_agg_ping_results.pdf")
-    plot_ping_cdf("rtt_b_raw.json", "rtt_b_raw_results.pdf")
+    # plot_ping_cdf("rtt_b_raw.json", "rtt_b_raw_results.pdf")
 
     # f = open("alexa_top_100", "r")
     # alexa = [x for x in f.read().split("\n")]

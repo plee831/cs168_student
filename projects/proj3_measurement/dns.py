@@ -36,12 +36,12 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
     hostnames = host_file.readlines()
 
     f.write("[")
-    if dns_query_server != None:
+    if not dns_query_server == None:
         final = ""
         for i in range(0, len(hostnames)):
             for j in range(0, 5):
                 tr = subprocess.Popen(
-                    ["dig", hostnames[i].split("\n")[0], dns_query_server],
+                    ["dig", hostnames[i].split("\n")[0], "@"+dns_query_server],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE
                 )
@@ -50,10 +50,10 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
 
                 queries = out.split(";; Got answer:");
                 for q in range(1, len(queries)):
-                    success = "false"  # WILL CHANGE WHEN WE PARSE
+                    success = "false"
                     time_tbr = 0
 
-                    query_tbr = ""  # WILL BE WRITTENT O FILE
+                    query_tbr = ""
                     query = queries[q]
 
                     blocks = out.split("\n\n")
@@ -85,18 +85,13 @@ def run_dig(hostname_filename, output_filename, dns_query_server=None):
                                       + ANSWER_DATA_KEY + "\"" + data_ + "\", " + TYPE_KEY \
                                       + "\"" + type_ + "\", " + TTL_KEY + ttl_ + "},"
                                 body += tbw
-                                # body = body + "\n\t\t" + tbw
-                                # if len(blocks) < 4:
-                                #     if block_split[k]:
                             else:
                                 pass
                         query_tbr = query_tbr + body
 
-                        # subheader = "\n\t" + "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
                     subheader = "{" + TIME_KEY + str(time_tbr) + ", " + ANSWERS_KEY + "["
                     query_tbr = subheader + query_tbr[:len(query_tbr) - 1] + "]},"
                     tbr += query_tbr
-                # header = "\n" + "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
                 header = "{" + NAME_KEY + "\"" + hostnames[i].split("\n")[0] + "\", " + SUCCESS_KEY \
                          + success + ", " + QUERIES_KEY + "["
                 tbr = header + tbr[:len(tbr) - 1] + "]},"
@@ -226,7 +221,6 @@ def get_average_times(filename):
                     sum_final_time += time
                     num_of_finals += 1
             sum_total_time += time
-    # printed results - [587, 86]
     return [sum_total_time / len(parsed_json), sum_final_time / num_of_finals]
 
 
@@ -357,7 +351,7 @@ def count_differences_helper(f_parsed_json, past_diff):
 if __name__ == "__main__":
     # run_dig("alexa_top_100", "dns_output_2.json")
     # print count_different_dns_responses("dns_output_1.json", "dns_output_2.json")
-    print count_different_dns_responses("dns_output_other_server.json", "dns_output_1.json")
+    # print count_different_dns_responses("dns_output_other_server.json", "dns_output_1.json")
     # get_average_ttls("test_result.json")
     # print get_average_times("test_result.json")
     # run_dig("alexa_top_100", "dns_output_other_server.json", "A ")
