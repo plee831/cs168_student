@@ -2,29 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0c7ef2b5-e06b-4d17-9a2c-38b54487c107" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/sifted.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a1_edit.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a1_edit.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a1_new.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a2_edit.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a2_edit.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a3_edit.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a3_edit.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a4_edit.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a4_edit.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a4_t.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a5_edit.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/tr_part_a5_edit.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/traceroute data/traceroute2.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dig_from_france.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dns_query_server_dig.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/example_cdf_dns_ttl.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tr_part_a.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tr_part_b1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tr_part_b2.txt" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.pdf" afterPath="$PROJECT_DIR$/readme/README.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.synctex.gz" afterPath="$PROJECT_DIR$/readme/README.synctex.gz" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dns.py" afterPath="$PROJECT_DIR$/dns.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rtts.py" afterPath="$PROJECT_DIR$/rtts.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tr_part_a.json" afterPath="$PROJECT_DIR$/tr_part_a.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tr_part_b.json" afterPath="$PROJECT_DIR$/tr_part_b.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/traceroute data/tr_part_b1.json" afterPath="$PROJECT_DIR$/traceroute data/tr_part_b1.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/traceroute data/tr_part_b2.json" afterPath="$PROJECT_DIR$/traceroute data/tr_part_b2.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/traceroute.py" afterPath="$PROJECT_DIR$/traceroute.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.aux" afterPath="$PROJECT_DIR$/readme/README.aux" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.fdb_latexmk" afterPath="$PROJECT_DIR$/readme/README.fdb_latexmk" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.log" afterPath="$PROJECT_DIR$/readme/README.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme/README.tex" afterPath="$PROJECT_DIR$/readme/README.tex" />
     </list>
     <ignored path="proj3_measurement.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -47,7 +37,7 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="dns.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="dns.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/dns.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="401">
@@ -59,7 +49,14 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="dns_output_other_server.json" pinned="false" current-in-tab="false">
+          <file leaf-file-name="README.tex" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/readme/README.tex">
+              <provider selected="true" editor-type-id="LaTeXFileEditor">
+                <state />
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="dns_output_other_server.json" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/dns_output_other_server.json">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="0">
@@ -101,16 +98,6 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="dig_from_france.json" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/dig_from_france.json">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="0">
-                  <caret line="0" column="1513" selection-start-line="0" selection-start-column="1513" selection-end-line="0" selection-end-column="1513" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
         </leaf>
       </split-first>
       <split-second>
@@ -146,7 +133,6 @@
         <option value="$PROJECT_DIR$/rtt_a_agg.json" />
         <option value="$PROJECT_DIR$/google.json" />
         <option value="$PROJECT_DIR$/rtt_a_raw.json" />
-        <option value="$PROJECT_DIR$/readme/README.tex" />
         <option value="$PROJECT_DIR$/test_result.json" />
         <option value="$PROJECT_DIR$/project3_tests.py" />
         <option value="$PROJECT_DIR$/submit_dns_output_1.json" />
@@ -156,6 +142,7 @@
         <option value="$PROJECT_DIR$/traceroute.py" />
         <option value="$PROJECT_DIR$/rtts.py" />
         <option value="$PROJECT_DIR$/dns.py" />
+        <option value="$PROJECT_DIR$/readme/README.tex" />
       </list>
     </option>
   </component>
@@ -469,17 +456,17 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.113893375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5021971" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.327551" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32739726" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32876712" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22739726" sideWeight="0.49780288" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22739726" sideWeight="0.49780288" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -708,13 +695,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/readme/README.tex">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="585">
-          <caret line="39" column="33" selection-start-line="39" selection-start-column="33" selection-end-line="39" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/google.json" />
     <entry file="file://$PROJECT_DIR$/norm.json" />
     <entry file="file://$PROJECT_DIR$/json_scanner.py">
@@ -810,14 +790,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dns_query_server_dig.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="4573" selection-start-line="0" selection-start-column="4573" selection-end-line="0" selection-end-column="4573" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dns_output_2.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2003">
@@ -862,14 +834,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="1513" selection-start-line="0" selection-start-column="1513" selection-end-line="0" selection-end-column="1513" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dns_output_other_server.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -923,6 +887,32 @@
           <folding>
             <element signature="e#24#41#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/readme/README.tex">
+      <provider selected="true" editor-type-id="LaTeXFileEditor">
+        <state />
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="39" column="33" selection-start-line="39" selection-start-column="33" selection-end-line="39" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dns_output_other_server.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dns_query_server_dig.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="4573" selection-start-line="0" selection-start-column="4573" selection-end-line="0" selection-end-column="4573" />
+          <folding />
         </state>
       </provider>
     </entry>
