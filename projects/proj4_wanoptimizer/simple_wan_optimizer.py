@@ -1,5 +1,6 @@
 import wan_optimizer
 
+
 class WanOptimizer(wan_optimizer.BaseWanOptimizer):
     """ WAN Optimizer that divides data into fixed-size blocks.
 

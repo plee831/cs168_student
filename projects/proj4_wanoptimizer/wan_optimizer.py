@@ -7,7 +7,7 @@ class BaseWanOptimizer():
     You should NOT modify this class or turn it in with your submitted code.
     You should also not change any of the variables defined here (but you are 
     welcome to access them).
-    """ 
+    """
 
     # The string of bits to compare the lower order 13 bits of hash to
     GLOBAL_MATCH_BITSTRING = '0111011001010'
@@ -73,6 +73,5 @@ class BaseWanOptimizer():
 
     def __repr__(self):
         return (("BaseWanOptimizer<wan_port={}, address_to_port={}, " +
-                "port_to_network_element={}").format(
+                 "port_to_network_element={}").format(
             self.wan_port, self.address_to_port, self.port_to_network_element))
-
