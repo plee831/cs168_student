@@ -6,7 +6,7 @@ MAX_PACKET_SIZE = 1500
 def get_hash(data):
     """ Returns the hash of the given data. """
     hasher = hashlib.sha1()
-    hasher.update(data)
+    hasher.update(  data)
     return hasher.digest()
 
 
