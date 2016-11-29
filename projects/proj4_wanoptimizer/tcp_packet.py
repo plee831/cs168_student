@@ -32,6 +32,6 @@ class Packet():
         """ Returns a string representation of the packet (useful for printing).
         """
         return ("TcpPacket<src={}, dest={}, is_raw_data={}, is_fin={}, "
-            "size={}>").format(
-                self.src, self.dest, self.is_raw_data, self.is_fin,
-                self.size())
+                "size={}>").format(
+            self.src, self.dest, self.is_raw_data, self.is_fin,
+            self.size())

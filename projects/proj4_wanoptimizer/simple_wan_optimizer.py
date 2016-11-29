@@ -1,5 +1,6 @@
 import wan_optimizer
-
+import utils
+import sys
 
 class WanOptimizer(wan_optimizer.BaseWanOptimizer):
     """ WAN Optimizer that divides data into fixed-size blocks.
@@ -14,8 +15,13 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
     def __init__(self):
         wan_optimizer.BaseWanOptimizer.__init__(self)
         # Add any code that you like here (but do not add any constructor arguments).
-        return
+        self.CURRENT_BLOCK = ""
+        self.hash_to_data = {}
+        self.waiting_to_fill_block = False
 
+
+    # The receiving WAN optimizer, when it gets raw data, will similarly compute the hash,
+    # and store the mapping between the hash and the raw data.
     def receive(self, packet):
         """ Handles receiving a packet.
 
@@ -28,6 +34,48 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         the WAN; this WAN optimizer should operate based only on its own local state
         and packets that have been received.
         """
+        # Data from CLIENT
+        # collect enough data for a block. Then hash the block (storing mapping of hash->raw data)
+        print packet.payload
+        if packet.is_raw_data:
+            if len(self.CURRENT_BLOCK + packet.payload) <= WanOptimizer.BLOCK_SIZE:
+                if len(self.CURRENT_BLOCK + packet.payload) == WanOptimizer.BLOCK_SIZE:
+                    self.waiting_to_fill_block = False
+                else:
+                    self.waiting_to_fill_block = True
+                self.CURRENT_BLOCK += packet.payload
+            else:
+                self.waiting_to_fill_block = False
+                self.CURRENT_BLOCK += packet.payload[:(WanOptimizer.BLOCK_SIZE - sys.getsizeof(self.CURRENT_BLOCK))]
+                block_to_send = self.CURRENT_BLOCK
+                hashed_data = utils.get_hash(block_to_send)
+                # Check if the data in the dict. If yes, send HASH
+                if hashed_data in self.hash_to_data.keys():
+                    packet.payload = self.hash_to_data[hashed_data]
+                    packet.is_raw_data = False
+                # Store the data into the dict. Send data
+                else:
+                    self.hash_to_data[hashed_data] = block_to_send
+                    self.CURRENT_BLOCK = packet.payload[(WanOptimizer.BLOCK_SIZE - sys.getsizeof(self.CURRENT_BLOCK)):]
+                    packet.payload = block_to_send
+        # Received a Hash from WAN optimizer and not raw data.
+        else:
+            received_hash = packet.payload
+            # Check if its in the dict. If it isn't, INVALID HASH
+            if received_hash in self.hash_to_data.keys():
+                raw_data = self.hash_to_data[received_hash]
+                packet.payload = raw_data
+        if self.waiting_to_fill_block:
+            if not packet.is_fin and not len(self.CURRENT_BLOCK) <= WanOptimizer.BLOCK_SIZE:
+                return
+            else:
+                hashed_data = utils.get_hash(self.CURRENT_BLOCK)
+                if hashed_data in self.hash_to_data.keys():
+                    packet.payload = hashed_data
+                else:
+                    packet.payload = self.CURRENT_BLOCK
+                self.CURRENT_BLOCK = ""
+                self.waiting_to_fill_block = False
         if packet.dest in self.address_to_port:
             # The packet is destined to one of the clients connected to this middlebox;
             # send the packet there.
