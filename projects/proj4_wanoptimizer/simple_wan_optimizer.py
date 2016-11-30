@@ -78,6 +78,46 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
             print "PACKET.PAYLOAD LENGTH: " + str(len(packet.payload))
             print "CURRENT PAYLOAD LENGHT: " + str(len(self.CURRENT_PAYLOAD))
             print "NEXT PAYLOAD LENGTH: " + str(len(next_payload))
+
+            if len(self.CURRENT_PAYLOAD) + self.CURRENT_BLOCK_BYTE_SIZE < WanOptimizer.BLOCK_SIZE:
+
+                # In the case that the packet has reached max size or its the final packet, send
+                if len(self.CURRENT_PAYLOAD) == utils.MAX_PACKET_SIZE:
+                    self.CURRENT_BLOCK.append(
+                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
+
+                    self.CURRENT_BLOCK_BYTE_SIZE += len(self.CURRENT_PAYLOAD)
+                    self.CURRENT_PAYLOAD = next_payload
+
+            elif len(self.CURRENT_PAYLOAD) + self.CURRENT_BLOCK_BYTE_SIZE == WanOptimizer.BLOCK_SIZE:
+                self.CURRENT_BLOCK.append(
+                    Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
+                self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
+
+                self.CURRENT_BLOCK = []
+                self.CURRENT_BLOCK_BYTE_SIZE = 0
+                self.CURRENT_PAYLOAD = next_payload
+
+            # len(self.CURRENT_PAYLOAD) + self.CURRENT_BLOCK_BYTE_SIZE > WanOptimizer.BLOCK_SIZE
+            else:
+                old_payload = self.CURRENT_PAYLOAD
+                print "@@@@"
+                print "SIZE LEFT in BLOCK: " + str(WanOptimizer.BLOCK_SIZE - self.CURRENT_BLOCK_BYTE_SIZE)
+                print "PACKET PAYLOAD: " + str(len(packet.payload))
+                payload_to_send = self.CURRENT_PAYLOAD[:(
+                    WanOptimizer.BLOCK_SIZE - self.CURRENT_BLOCK_BYTE_SIZE)]
+                payload_to_send = payload_to_send[:utils.MAX_PACKET_SIZE]
+                print "PAYLOAD TO SEND: " + str(len(payload_to_send))
+                self.CURRENT_PAYLOAD = old_payload[(
+                    WanOptimizer.BLOCK_SIZE - self.CURRENT_BLOCK_BYTE_SIZE):] + next_payload
+                self.CURRENT_BLOCK.append(
+                    Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=payload_to_send))
+                self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
+
+                print "NEXT PAYLOAD: " + str(len(next_payload))
+                print "CURRENT PAYLOAD: " + str(len(self.CURRENT_PAYLOAD))
+                self.CURRENT_BLOCK = []
+                self.CURRENT_BLOCK_BYTE_SIZE = 0
             if packet.is_fin:
                 print "FIN"
                 if next_payload == "":
@@ -100,41 +140,6 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                     ]
                     self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
                     self.CURRENT_PAYLOAD = ""
-                    self.CURRENT_BLOCK = []
-                    self.CURRENT_BLOCK_BYTE_SIZE = 0
-
-            # Not the final packet
-            else:
-                if len(self.CURRENT_PAYLOAD) + self.CURRENT_BLOCK_BYTE_SIZE < WanOptimizer.BLOCK_SIZE:
-
-                    # In the case that the packet has reached max size or its the final packet, send
-                    if len(self.CURRENT_PAYLOAD) == utils.MAX_PACKET_SIZE:
-                        self.CURRENT_BLOCK.append(
-                            Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
-
-                        self.CURRENT_BLOCK_BYTE_SIZE += len(self.CURRENT_PAYLOAD)
-                        self.CURRENT_PAYLOAD = next_payload
-
-                elif len(self.CURRENT_PAYLOAD) + self.CURRENT_BLOCK_BYTE_SIZE == WanOptimizer.BLOCK_SIZE:
-                    self.CURRENT_BLOCK.append(
-                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
-                    self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
-
-                    self.CURRENT_BLOCK = []
-                    self.CURRENT_BLOCK_BYTE_SIZE = 0
-                    self.CURRENT_PAYLOAD = next_payload
-                else:
-                    old_payload = self.CURRENT_PAYLOAD
-                    self.CURRENT_PAYLOAD = self.CURRENT_PAYLOAD[:(
-                        self.CURRENT_BLOCK_BYTE_SIZE + len(self.CURRENT_PAYLOAD) - WanOptimizer.BLOCK_SIZE)]
-                    print WanOptimizer.BLOCK_SIZE - self.CURRENT_BLOCK_BYTE_SIZE
-                    self.CURRENT_BLOCK_BYTE_SIZE += len(self.CURRENT_PAYLOAD)  # should be 8000 at most
-                    self.CURRENT_BLOCK.append(
-                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
-                    self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
-
-                    self.CURRENT_PAYLOAD = old_payload[(
-                        self.CURRENT_BLOCK_BYTE_SIZE + len(self.CURRENT_PAYLOAD) - WanOptimizer.BLOCK_SIZE):] + next_payload
                     self.CURRENT_BLOCK = []
                     self.CURRENT_BLOCK_BYTE_SIZE = 0
         # Received a Hash from WAN optimizer and not raw data.
