@@ -17,8 +17,11 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         wan_optimizer.BaseWanOptimizer.__init__(self)
         # Add any code that you like here (but do not add any constructor arguments).
         self.buffers = {}
+        # Key: (source, dest) -> Value: {"packets": [list of packets for block]; "length": size of block}
         self.hash_to_data = {}
+        # Key: hashed_data -> Value: complete_block for all the packets
 
+    # standard staff send
     def send_packet(self, packet):
         if packet.dest in self.address_to_port:
             # The packet is destined to one of the clients connected to this middlebox;
@@ -29,6 +32,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
             # so send it across the WAN.
             self.send(packet, self.wan_port)
 
+    # sends a block. Handles the logic of who to send the block to + hashing for the block
     def send_block(self, list_of_packets, source, destination, is_fin):
         complete_block = ""
         for packet in list_of_packets:
@@ -39,13 +43,15 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                 for packet in list_of_packets:
                     self.send(packet, self.address_to_port[packet.dest])
             else:
-                hashed_packet = Packet(src=source, dest=destination, is_raw_data=False, is_fin=is_fin, payload=hashed_data)
+                hashed_packet = Packet(src=source, dest=destination, is_raw_data=False, is_fin=is_fin,
+                                       payload=hashed_data)
                 self.send(hashed_packet, self.wan_port)
         else:
             self.hash_to_data[hashed_data] = complete_block
             for packet in list_of_packets:
                 self.send_packet(packet)
 
+    # splits up a block to send by packets
     def send_payload_by_splitting(self, payload, source, destination, is_fin):
         packets = []
         while len(payload) > utils.MAX_PACKET_SIZE:
@@ -70,179 +76,38 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         if packet.is_raw_data:
             packet_to_send = packet
             packet_for_later = None
+            # Check if in the dictionary, if not add it in
             if (packet.src, packet.dest) not in self.buffers.keys():
                 self.buffers[(packet.src, packet.dest)] = {}
                 self.buffers[(packet.src, packet.dest)]["packets"] = []
                 self.buffers[(packet.src, packet.dest)]["length"] = 0
+            # First check if you need to split the packet up
             if packet.size() + self.buffers[(packet.src, packet.dest)]["length"] > WanOptimizer.BLOCK_SIZE:
                 diff = WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"]
                 packet_to_send = Packet(packet.src, packet.dest, packet.is_raw_data, False, packet.payload[:diff])
                 packet_for_later = Packet(packet.src, packet.dest, packet.is_raw_data, packet.is_fin,
                                           packet.payload[diff:])
+            # Store the packet into the buffer. Only the first part (if there even was a split) of the packet
             self.buffers[(packet.src, packet.dest)]['packets'].append(packet_to_send)
             self.buffers[(packet.src, packet.dest)]['length'] += packet.size()
+            # Check if you CAN send the packet (either receiving fin or the buffer is full)
             if packet.is_fin or self.buffers[(packet.src, packet.dest)]['length'] >= WanOptimizer.BLOCK_SIZE:
-                self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest, packet.is_fin)
-                self.buffers[(packet.src, packet.dest)]['packets'] = []
-                self.buffers[(packet.src, packet.dest)]['length'] = 0
-                if packet_for_later:
+                self.send_block(self.buffers[(packet.src, packet.dest)]["packets"],
+                                packet.src, packet.dest, packet.is_fin)
+                # Check that the second portion of the packet isn't empty
+                if packet_for_later is not None:
                     self.buffers[(packet.src, packet.dest)]['packets'] = [packet_for_later]
                     self.buffers[(packet.src, packet.dest)]['length'] = packet_for_later.size()
+                # If it is empty, initialize a new empty one
+                else:
+                    self.buffers[(packet.src, packet.dest)]['packets'] = []
+                    self.buffers[(packet.src, packet.dest)]['length'] = 0
+        # If it isn't raw data, just send the data over.
+        # If it's going to a CLIENT, send reg data based on HASH
+        # If it's going to a WAN, send HASH over.
+        # Details in helper method
         else:
             if packet.dest in self.address_to_port:
                 if packet.payload in self.hash_to_data.keys():
                     raw_data = self.hash_to_data[packet.payload]
                     self.send_payload_by_splitting(raw_data, packet.src, packet.dest, packet.is_fin)
-        # if not packet.is_raw_data:
-        #     if packet.dest in self.address_to_port:
-        #         if packet.payload in self.hash_to_data.keys():
-        #             raw_data = self.hash_to_data[packet.payload]
-        #             self.send_payload_by_splitting(raw_data, packet.src, packet.dest, packet.is_fin)
-        # else:
-        #     packet_to_send = Packet
-        #     packet_for_later = None
-        #     if (packet.src, packet.dest) not in self.buffers.keys():
-        #         self.buffers[(packet.src, packet.dest)] = {}
-        #         self.buffers[(packet.src, packet.dest)]["packets"] = []
-        #         self.buffers[(packet.src, packet.dest)]["length"] = 0
-        #     if packet.size() + self.buffers[(packet.src, packet.dest)]["length"] > WanOptimizer.BLOCK_SIZE:
-        #         split_payload_1 = packet.payload[
-        #                           :(WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"])]
-        #         split_payload_2 = packet.payload[
-        #                           (WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"]):]
-        #         packet_to_send = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=False,
-        #                                 payload=split_payload_1)
-        #         packet_for_later = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin,
-        #                                   payload=split_payload_2)
-        #     if (packet.src, packet.dest) in self.buffers:
-        #         self.buffers[(packet.src, packet.dest)]["packets"].append(packet_to_send)
-        #         self.buffers[(packet.src, packet.dest)]["length"] += packet.size()
-        #     else:
-        #         self.buffers[(packet.src, packet.dest)] = {}
-        #         self.buffers[(packet.src, packet.dest)]["packets"] = [packet_to_send]
-        #         self.buffers[(packet.src, packet.dest)]["length"] = packet.size()
-        #     # self.buffers[(packet.src, packet.dest)]["packets"].append(packet_to_send)
-        #     # self.buffers[(packet.src, packet.dest)]["length"] += packet_to_send.size()
-        #     if packet.is_fin or packet.size() + self.buffers[(packet.src, packet.dest)]["length"] > WanOptimizer.BLOCK_SIZE:
-        #         # Create block
-        #         complete_block = ""
-        #         for pack in self.buffers[(packet.src, packet.dest)]["packets"]:
-        #             complete_block += pack.payload
-        #
-        #         hashed_data = utils.get_hash(complete_block)
-        #         # If block is in our self.blocks
-        #         if hashed_data in self.hash_to_data.keys():
-        #             if packet.dest in self.address_to_port:
-        #                 for pack in self.buffers[(packet.src, packet.dest)]["packets"]:
-        #                     self.send(pack, self.address_to_port[pack.dest])
-        #             else:
-        #                 hash_packet = Packet(packet.src, packet.dest, False, packet.is_fin, hashed_data)
-        #                 self.send(hash_packet, self.wan_port)
-        #
-        #         # If seeing packets for the first time
-        #         else:
-        #             # Store hash and block to self.blocks
-        #             self.hash_to_data[hashed_data] = complete_block
-        #
-        #             # Send the packets
-        #             for pack in self.buffers[(packet.src, packet.dest)]["packets"]:
-        #                 if packet.dest in self.address_to_port:
-        #                     self.send(pack, self.address_to_port[pack.dest])
-        #                 else:
-        #                     self.send(pack, self.wan_port)
-        #
-        #         # Reset after sending out buffer
-        #         self.buffers[(packet.src, packet.dest)]['packets'] = []
-        #         self.buffers[(packet.src, packet.dest)]['length'] = 0
-        #         if packet_for_later:
-        #             self.buffers[(packet.src, packet.dest)]['packets'] = [packet_for_later]
-        #             self.buffers[(packet.src, packet.dest)]['length'] = packet_for_later.size()
-
-
-
-
-
-
-            #
-            #     self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest,
-            #                     is_fin=False)
-            #     if split_payload_2 == "" and packet.is_fin:
-            #         self.send_packet(Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin, payload=split_payload_2))
-            #     else:
-            #         packet_for_later = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin, payload=split_payload_2)
-            #         self.buffers[(packet.src, packet.dest)]["packets"] = [packet_for_later]
-            #         self.buffers[(packet.src, packet.dest)]["length"] = packet_for_later.size()
-            #         if packet.is_fin:
-            #             self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest,
-            #                             is_fin=packet.is_fin)
-            #     self.buffers[(packet.src, packet.dest)]["length"] = 0
-            #     self.buffers[(packet.src, packet.dest)]["packets"] = []
-            #     if packet_for_later is not None:
-            #         self.buffers[(packet.src, packet.dest)]["length"] = [packet_for_later]
-            #         self.buffers[(packet.src, packet.dest)]["packets"] = packet_for_later.size()
-            # else:
-            #     self.buffers[(packet.src, packet.dest)]["length"] += packet.size()
-            #     self.buffers[(packet.src, packet.dest)]["packets"].append(packet)
-
-
-            # result = packet
-            # extra = None
-            # length = 0
-            # if (src, dest) in self.buffers:
-            #     length = self.buffers[(src, dest)]['length']
-            #
-            # # Checking if packet needs to be split
-            # if packet.size() + length > WanOptimizer.BLOCK_SIZE:
-            #     diff = WanOptimizer.BLOCK_SIZE - length
-            #     # Result should not be True ever
-            #     result = Packet(packet.src, packet.dest, packet.is_raw_data, False, packet.payload[:diff])
-            #     extra = Packet(packet.src, packet.dest, packet.is_raw_data, packet.is_fin, packet.payload[diff:])
-            #
-            # # Checking if source, destination has been seen before:
-            # if (src, dest) in self.buffers:
-            #     self.buffers[(src, dest)]['packets'].append(result)
-            #     self.buffers[(src, dest)]['length'] += packet.size()
-            # else:
-            #     self.buffers[(src, dest)] = {}
-            #     self.buffers[(src, dest)]['packets'] = [result]
-            #     self.buffers[(src, dest)]['length'] = packet.size()
-            #
-            # # Checking if we have met block size limit and must therefore send
-            # if packet.is_fin or self.buffers[(src, dest)]['length'] >= WanOptimizer.BLOCK_SIZE:
-            #     packets = self.buffers[(src, dest)]['packets']
-            #
-            #     # Create block
-            #     block = ""
-            #     for pack in packets:
-            #         block += pack.payload
-            #
-            #     # If block is in our self.hash_to_data
-            #     if block in self.hash_to_data.values():
-            #         if packet.dest in self.address_to_port:
-            #             for pack in packets:
-            #                 self.send(pack, self.address_to_port[pack.dest])
-            #         else:
-            #             for hash_key, block_val in self.hash_to_data.iteritems():
-            #                 if block == block_val:
-            #                     hash_packet = Packet(packet.src, packet.dest, False, packet.is_fin, hash_key)
-            #                     break
-            #             self.send(hash_packet, self.wan_port)
-            #
-            #     # If seeing packets for the first time
-            #     else:
-            #         # Store hash and block to self.hash_to_data
-            #         self.hash_to_data[utils.get_hash(block)] = block
-            #
-            #         # Send the packets
-            #         for pack in packets:
-            #             if packet.dest in self.address_to_port:
-            #                 self.send(pack, self.address_to_port[pack.dest])
-            #             else:
-            #                 self.send(pack, self.wan_port)
-            #
-            #     # Reset after sending out buffer
-            #     self.buffers[(src, dest)]['packets'] = []
-            #     self.buffers[(src, dest)]['length'] = 0
-            #     if extra:
-            #         self.buffers[(src, dest)]['packets'] = [extra]
-            #         self.buffers[(src, dest)]['length'] = extra.size()
