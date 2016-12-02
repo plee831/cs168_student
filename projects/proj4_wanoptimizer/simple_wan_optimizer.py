@@ -165,8 +165,6 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                     packet.payload = hashcode
                     self.staff_send(packet)
                 else:
-                    # packet.payload = text_buffer
-                    # self.staff_send(packet)
                     self.flush_buffer(packet)
                 self.reset_buffers(packet)
             else:
