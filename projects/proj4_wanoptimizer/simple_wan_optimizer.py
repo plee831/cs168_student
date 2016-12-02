@@ -57,9 +57,6 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         hashcode = utils.get_hash(text_buffer);
         self.hash_to_data[hashcode] = text_buffer;
 
-        src_dest_data = [text_buffer, text_buffer_overflow, text_buffer_len, block]
-        self.src_dest_data_write(packet, src_dest_data);
-
     def reset_buffers(self, packet):
         text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
 
@@ -130,10 +127,11 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         the WAN; this WAN optimizer should operate based only on its own local state
         and packets that have been received.
         """
-        if (packet.is_raw_data):
+
+        if (packet.is_raw_data == True):
             text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
 
-            block.append(packet);
+            # block.append(packet);
 
             self.fill_buffer(packet);
             text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
@@ -156,9 +154,9 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                                             payload=hashcode);
                     self.staff_send(packet_with_hash);
                 else:
-                    # self.send_raw_data_block(packet);
+                    self.hash_to_data[hashcode] = text_buffer;
                     self.flush_buffer(packet);
-                    self.hash_block(packet);
+                    # self.hash_block(packet);
                 buffer_flushed = True;
 
             # ERIC: Reset the buffers here but also check if packet.is_fin.
@@ -170,30 +168,45 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                     text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
 
                 # if (text_buffer_len > 0):
-                hashcode = self.hash_block;
-
+                # hashcode = self.hash_block;
+                # print hashcode
+                hashcode = utils.get_hash(text_buffer); #AFTER WE DISCOVERED ABOVE DOES NOTHING
                 if (hashcode in self.hash_to_data.keys()):
-                    packet.payload = hashcode;
-                    self.staff_send(packet);
+                    if packet.dest in self.address_to_port:
+                        raw_data = self.hash_to_data[hashcode];
+                        self.split_and_send_data(packet, raw_data);
+                    else:
+                        packet.payload = hashcode;
+                        self.staff_send(packet);
                 else:
-                    # packet.payload = text_buffer;
-                    # self.staff_send(packet);
+                    if packet.payload: # If payload is not empty
+                        self.hash_to_data[hashcode] = text_buffer;
                     self.flush_buffer(packet);
                 self.reset_buffers(packet);
             else:
                 if (buffer_flushed == True):
                     self.reset_buffers(packet);
-        else:
+        
+        else: # Eric: packet contains a hashcode
             received_hash = packet.payload;
+            text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
             # Check if its in the dict. If it isn't, INVALID HASH
             if received_hash in self.hash_to_data.keys():
                 if packet.dest in self.address_to_port: #ERIC: If we are sending to a client, then we don't send the hash
                     # The packet is destined to one of the clients connected to this middlebox;
                     # send the packet there.
+                    if (text_buffer == True):
+                        self.hash_to_data[hashcode] = text_buffer;
+                        flush_buffer(packet);
+                        self.reset_buffers(packet);
                     raw_data = self.hash_to_data[received_hash];
                     self.split_and_send_data(packet, raw_data);
                 else:
                     # The packet must be destined to a host connected to the other middlebox
                     # so send it across the WAN.
+                    if (text_buffer == True):
+                        self.hash_to_data[hashcode] = text_buffer;
+                        flush_buffer(packet);
+                        self.reset_buffers(packet);
                     self.staff_send(packet);
 
