@@ -2,6 +2,7 @@ import wan_optimizer
 import utils
 from tcp_packet import Packet
 
+
 class WanOptimizer(wan_optimizer.BaseWanOptimizer):
     """ WAN Optimizer that divides data into fixed-size blocks.
 
@@ -41,6 +42,29 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
             for packet in list_of_packets:
                 self.send_packet(packet)
 
+    def send_payload_by_splitting(self, payload, source, destination, is_fin):
+        num_of_full_packets = len(payload) / utils.MAX_PACKET_SIZE
+        size_of_last_packet = len(payload) - num_of_full_packets * utils.MAX_PACKET_SIZE
+        for i in range(0, num_of_full_packets):
+            start = i * utils.MAX_PACKET_SIZE
+            end = start + utils.MAX_PACKET_SIZE
+            payload = payload[start:end]
+            curr_packet = Packet(src=source,
+                                 dest=destination,
+                                 is_raw_data=True,
+                                 is_fin=False,
+                                 payload=payload)
+            self.send_packet(curr_packet)
+        last_payload_start = num_of_full_packets * utils.MAX_PACKET_SIZE
+        last_payload_end = last_payload_start + size_of_last_packet
+        last_payload = payload[last_payload_start:last_payload_end]
+        last_packet = Packet(src=source,
+                             dest=destination,
+                             is_raw_data=True,
+                             is_fin=is_fin,
+                             payload=last_payload)
+        self.send_packet(last_packet)
+
     def receive(self, packet):
         """ Handles receiving a packet.
 
@@ -59,55 +83,49 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                 self.buffers[(packet.src, packet.dest)]["packets"] = []
                 self.buffers[(packet.src, packet.dest)]["length"] = 0
             if packet.is_fin or packet.size() + self.buffers[(packet.src, packet.dest)]["length"] > WanOptimizer.BLOCK_SIZE:
-                if packet.is_fin:
-                    split_payload_1 = packet.payload[
-                                      :(WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"])]
-                    split_payload_2 = packet.payload[
-                                      (WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"]):]
-                    packet_to_send = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=False,
-                                            payload=split_payload_1)
-                    self.buffers[(packet.src, packet.dest)]["packets"].append(packet_to_send)
-                    self.buffers[(packet.src, packet.dest)]["length"] += packet_to_send.size()
-                    self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest,
-                                    is_fin=False)
-                    packet_for_later = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin,
-                                              payload=split_payload_2)
-
-                    self.buffers[(packet.src, packet.dest)]["packets"] = [packet_for_later]
-                    self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest,
-                                    is_fin=packet.is_fin)
+                split_payload_1 = packet.payload[
+                                  :(WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"])]
+                split_payload_2 = packet.payload[
+                                  (WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"]):]
+                packet_to_send = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=False,
+                                        payload=split_payload_1)
+                self.buffers[(packet.src, packet.dest)]["packets"].append(packet_to_send)
+                self.buffers[(packet.src, packet.dest)]["length"] += packet_to_send.size()
+                self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest,
+                                is_fin=False)
+                if split_payload_2 == "" and packet.is_fin:
+                    self.send_packet(Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin, payload=split_payload_2))
                     self.buffers[(packet.src, packet.dest)]["length"] = 0
                     self.buffers[(packet.src, packet.dest)]["packets"] = []
                 else:
-                    split_payload_1 = packet.payload[
-                                      :(WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"])]
-                    split_payload_2 = packet.payload[
-                                      (WanOptimizer.BLOCK_SIZE - self.buffers[(packet.src, packet.dest)]["length"]):]
-                    packet_to_send = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=False,
-                                            payload=split_payload_1)
-                    self.buffers[(packet.src, packet.dest)]["packets"].append(packet_to_send)
-                    self.buffers[(packet.src, packet.dest)]["length"] += packet_to_send.size()
-
-                    self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest,
-                                    is_fin=False)
-                    packet_for_later = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=False,
-                                              payload=split_payload_2)
-                    self.buffers[(packet.src, packet.dest)]["length"] = packet_for_later.size()
+                    packet_for_later = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin, payload=split_payload_2)
                     self.buffers[(packet.src, packet.dest)]["packets"] = [packet_for_later]
+                    self.buffers[(packet.src, packet.dest)]["length"] = packet_for_later.size()
+                    if packet.is_fin:
+                        self.send_block(self.buffers[(packet.src, packet.dest)]["packets"], packet.src, packet.dest,
+                                        is_fin=packet.is_fin)
+                        self.buffers[(packet.src, packet.dest)]["length"] = 0
+                        self.buffers[(packet.src, packet.dest)]["packets"] = []
             else:
                 self.buffers[(packet.src, packet.dest)]["length"] += packet.size()
                 self.buffers[(packet.src, packet.dest)]["packets"].append(packet)
         else:
             if packet.payload in self.hash_to_block.keys():
                 raw_data = self.hash_to_block[packet.payload]
-                while raw_data is not "":
-                    print len(raw_data)
-                    if len(raw_data) <= utils.MAX_PACKET_SIZE:
-                        print packet.is_fin
-                        temp_packet = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin,
-                                             payload=raw_data[:utils.MAX_PACKET_SIZE])
-                    else:
-                        temp_packet = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=False,
-                                             payload=raw_data[:utils.MAX_PACKET_SIZE])
-                    raw_data = raw_data[utils.MAX_PACKET_SIZE:]
-                    self.send_packet(temp_packet)
+                self.send_payload_by_splitting(raw_data, packet.src, packet.dest, packet.is_fin)
+        # print (packet.src, packet.dest)
+        # print self.buffers[(packet.src, packet.dest)]
+
+
+
+                # while raw_data is not "":
+                #     print len(raw_data)
+                #     if len(raw_data) <= utils.MAX_PACKET_SIZE:
+                #         print packet.is_fin
+                #         temp_packet = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=packet.is_fin,
+                #                              payload=raw_data[:utils.MAX_PACKET_SIZE])
+                #     else:
+                #         temp_packet = Packet(src=packet.src, dest=packet.dest, is_raw_data=True, is_fin=False,
+                #                              payload=raw_data[:utils.MAX_PACKET_SIZE])
+                #     raw_data = raw_data[utils.MAX_PACKET_SIZE:]
+                #     self.send_packet(temp_packet)
