@@ -90,8 +90,15 @@ def main():
     parser.add_argument(
         "--verify-middlebox-handles-interleaved-data",
         dest="verify_middlebox_handles_interleaved_data",
+        action="store_true")    
+    parser.add_argument(
+        "--send-fin-overload-buffer",
+        dest="send_fin_overload_buffer",
         action="store_true")
-
+    parser.add_argument(
+        "--send-fin-overload-buffer",
+        dest="send_fin_overload_buffer",
+        action="store_true")
     args = parser.parse_args()
     if args.middlebox_name.endswith(".py"):
         print ("Do not include the .py suffix in the middlebox-name " +
@@ -194,8 +201,21 @@ def main():
             test_module.verify_middlebox_handles_interleaved_data,
             middlebox_module,
             testing_part_1)
+        total_tests += 1 
+    if args.send_fin_overload_buffer or args.run_all:
+        test_module = send_fin_overload_buffer
+        passed_tests += run_test(
+            test_module.send_fin_overload_buffer,
+            middlebox_module,
+            testing_part_1)
         total_tests += 1
-
+    if args.send_fin_overload_buffer or args.run_all:
+        test_module = send_fin_overload_buffer
+        passed_tests += run_test(
+            test_module.send_fin_overload_buffer,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
     if passed_tests == total_tests:
         print "{}Success! Passed {}/{} tests{}".format(GREEN, passed_tests, total_tests, CLEAR)
     else:

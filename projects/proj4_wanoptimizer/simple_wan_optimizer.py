@@ -89,7 +89,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                                           packet.payload[diff:])
             # Store the packet into the buffer. Only the first part (if there even was a split) of the packet
             self.buffers[(packet.src, packet.dest)]['packets'].append(packet_to_send)
-            self.buffers[(packet.src, packet.dest)]['length'] += packet.size()
+            self.buffers[(packet.src, packet.dest)]['length'] += packet_to_send.size()
             # Check if you CAN send the packet (either receiving fin or the buffer is full)
             if packet.is_fin or self.buffers[(packet.src, packet.dest)]['length'] >= WanOptimizer.BLOCK_SIZE:
                 self.send_block(self.buffers[(packet.src, packet.dest)]["packets"],
