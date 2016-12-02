@@ -1,7 +1,6 @@
 import wan_optimizer
 import utils
-from tcp_packet import Packet
-
+import tcp_packet
 
 class WanOptimizer(wan_optimizer.BaseWanOptimizer):
     """ WAN Optimizer that divides data into fixed-size blocks.
@@ -16,47 +15,109 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
     def __init__(self):
         wan_optimizer.BaseWanOptimizer.__init__(self)
         # Add any code that you like here (but do not add any constructor arguments).
-        # self.CURRENT_BLOCK = ""
-        self.CURRENT_PAYLOAD = ""
-        self.CURRENT_BLOCK = []
-        self.CURRENT_BLOCK_BYTE_SIZE = 0
-        self.hash_to_data = {}
+        self.blocks = {}; #KEY = (source, destination), #VALUE = buffer, buffer_overflow, buffer_len, block
+        # text_buffer = "";
+        # text_buffer_overflow = "";
+        # text_buffer_len = 0;
+        # block = [];
+        self.hash_to_data = {};
 
-    def send_block(self, list_of_packets, source, destination, is_fin=False):
-        complete_block = ""
-        for packet in list_of_packets:
-            complete_block += packet.payload
-        hashed_data = utils.get_hash(complete_block)
-        # Check if the data in the dict. If yes, send only the HASH
-        if hashed_data in self.hash_to_data.keys():
-            hashed_data_packet = Packet(src=source,
-                                        dest=destination,
-                                        is_raw_data=False,
-                                        is_fin=is_fin,
-                                        payload=hashed_data)
-            if hashed_data_packet.dest in self.address_to_port:
-                # The packet is destined to one of the clients connected to this middlebox;
-                # send the packet there.
-                self.send(hashed_data_packet, self.address_to_port[hashed_data_packet.dest])
-            else:
-                # The packet must be destined to a host connected to the other middlebox
-                # so send it across the WAN.
-                self.send(hashed_data_packet, self.wan_port)
-        # Store the data into the dict. Send the original data (by the packets)
+    def src_dest_data_read(self, packet):
+        if not (packet.src, packet.dest) in self.blocks.keys():
+            self.blocks[(packet.src, packet.dest)] = ["", "", 0, []];
+
+        src_dest_data = self.blocks[(packet.src, packet.dest)];
+        text_buffer = src_dest_data[0];
+        text_buffer_overflow = src_dest_data[1];
+        text_buffer_len = src_dest_data[2];
+        block = src_dest_data[3];
+        return text_buffer, text_buffer_overflow, text_buffer_len, block
+
+    def src_dest_data_write(self, packet, src_dest_data):
+        self.blocks[(packet.src, packet.dest)] = src_dest_data;
+
+    def fill_buffer(self, packet):
+        text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+
+        if ((text_buffer_len + packet.size()) <= WanOptimizer.BLOCK_SIZE):
+            text_buffer = text_buffer + packet.payload;
         else:
-            self.hash_to_data[hashed_data] = complete_block
-            for packet in list_of_packets:
-                if packet.dest in self.address_to_port:
-                    # The packet is destined to one of the clients connected to this middlebox;
-                    # send the packet there.
-                    self.send(packet, self.address_to_port[packet.dest])
-                else:
-                    # The packet must be destined to a host connected to the other middlebox
-                    # so send it across the WAN.
-                    self.send(packet, self.wan_port)
+            remaining_space = WanOptimizer.BLOCK_SIZE - text_buffer_len;
+            text_buffer = text_buffer + packet.payload[:remaining_space];
+            text_buffer_overflow = packet.payload[remaining_space:];
 
-    # The receiving WAN optimizer, when it gets raw data, will similarly compute the hash,
-    # and store the mapping between the hash and the raw data.
+        text_buffer_len = len(text_buffer);
+
+        src_dest_data = [text_buffer, text_buffer_overflow, text_buffer_len, block]
+        self.src_dest_data_write(packet, src_dest_data);
+
+    def hash_block(self, packet):
+        text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+
+        hashcode = utils.get_hash(text_buffer);
+        self.hash_to_data[hashcode] = text_buffer;
+
+        src_dest_data = [text_buffer, text_buffer_overflow, text_buffer_len, block]
+        self.src_dest_data_write(packet, src_dest_data);
+
+    def reset_buffers(self, packet):
+        text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+
+        text_buffer = text_buffer_overflow;
+        text_buffer_len = len(text_buffer);
+        text_buffer_overflow = "";
+        block = [];
+
+        src_dest_data = [text_buffer, text_buffer_overflow, text_buffer_len, block]
+        self.src_dest_data_write(packet, src_dest_data);
+
+    def flush_buffer(self, packet):
+        text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+        self.split_and_send_data(packet, text_buffer);
+
+    def split_and_send_data(self, packet, data):
+        text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+        data_len = len(data);
+
+        num_of_full_packets = data_len / utils.MAX_PACKET_SIZE;
+        size_of_last_packet = data_len - num_of_full_packets*utils.MAX_PACKET_SIZE;
+        for i in range (0, num_of_full_packets):
+            start = i*utils.MAX_PACKET_SIZE;
+            end = start + utils.MAX_PACKET_SIZE;
+            payload = data[start:end];
+            curr_packet = tcp_packet.Packet(src=packet.src,
+                                            dest=packet.dest,
+                                            is_raw_data=True,
+                                            is_fin=False,
+                                            payload=payload);
+            self.staff_send(curr_packet);
+        last_payload_start = num_of_full_packets*utils.MAX_PACKET_SIZE;
+        last_payload_end = last_payload_start + size_of_last_packet;
+        last_payload = data[last_payload_start:last_payload_end];
+        last_packet = tcp_packet.Packet(src=packet.src,
+                                            dest=packet.dest,
+                                            is_raw_data=True,
+                                            is_fin=packet.is_fin,
+                                            payload=last_payload);
+        self.staff_send(last_packet);
+
+
+    def staff_send(self, packet):
+        if packet.dest in self.address_to_port:
+            # The packet is destined to one of the clients connected to this middlebox;
+            # send the packet there.
+            self.send(packet, self.address_to_port[packet.dest])
+        else:
+            # The packet must be destined to a host connected to the other middlebox
+            # so send it across the WAN.
+            self.send(packet, self.wan_port)
+
+    # def send_raw_data_block(self, packet):
+    #     text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+
+    #     for packet in block:
+    #         self.staff_send(packet);
+
     def receive(self, packet):
         """ Handles receiving a packet.
 
@@ -69,86 +130,70 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         the WAN; this WAN optimizer should operate based only on its own local state
         and packets that have been received.
         """
-        # Data from CLIENT
-        # collect enough data for a block. Then hash the block (storing mapping of hash->raw data)
-        if packet.is_raw_data:
-            old_payload = self.CURRENT_PAYLOAD
-            self.CURRENT_PAYLOAD += packet.payload[:(utils.MAX_PACKET_SIZE - len(old_payload))]
-            next_payload = packet.payload[(utils.MAX_PACKET_SIZE - len(old_payload)):]
-            print "PACKET.PAYLOAD LENGTH: " + str(len(packet.payload))
-            print "CURRENT PAYLOAD LENGHT: " + str(len(self.CURRENT_PAYLOAD))
-            print "NEXT PAYLOAD LENGTH: " + str(len(next_payload))
-            if packet.is_fin:
-                print "FIN"
-                if next_payload == "":
-                    self.CURRENT_BLOCK.append(
-                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=True, payload=self.CURRENT_PAYLOAD))
-                    for packet in self.CURRENT_BLOCK:
-                        print packet
-                    self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest, is_fin=True)
-                    self.CURRENT_PAYLOAD = ""
-                    self.CURRENT_BLOCK = []
-                    self.CURRENT_BLOCK_BYTE_SIZE = 0
-                else:
-                    self.CURRENT_BLOCK.append(
-                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
-                    self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
-                    # Send a block of the remaining bytes
-                    self.CURRENT_BLOCK_BYTE_SIZE = len(next_payload)
-                    self.CURRENT_BLOCK = [
-                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=True, payload=next_payload)
-                    ]
-                    self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
-                    self.CURRENT_PAYLOAD = ""
-                    self.CURRENT_BLOCK = []
-                    self.CURRENT_BLOCK_BYTE_SIZE = 0
+        if (packet.is_raw_data):
+            text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
 
-            # Not the final packet
+            block.append(packet);
+
+            self.fill_buffer(packet);
+            text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+
+            buffer_flushed = False;
+            if (text_buffer_len == WanOptimizer.BLOCK_SIZE):
+                hashcode = utils.get_hash(text_buffer);
+
+                # ERIC: Set curr_is_fin for the packet_with_hash
+                curr_is_fin = packet.is_fin;
+
+                if (len(text_buffer_overflow) > 0):
+                    curr_is_fin = False;
+
+                if (hashcode in self.hash_to_data.keys()):
+                    packet_with_hash = tcp_packet.Packet(src=packet.src,
+                                            dest=packet.dest,
+                                            is_raw_data=False,
+                                            is_fin=curr_is_fin,
+                                            payload=hashcode);
+                    self.staff_send(packet_with_hash);
+                else:
+                    # self.send_raw_data_block(packet);
+                    self.flush_buffer(packet);
+                    self.hash_block(packet);
+                buffer_flushed = True;
+
+            # ERIC: Reset the buffers here but also check if packet.is_fin.
+            # If the packet.is_fin, then we check to see if there's unsent data.
+            # If there is unsent data, then we hash the remaining data and send it out.
+            if (packet.is_fin == True):
+                if (buffer_flushed == True):
+                    self.reset_buffers(packet);
+                    text_buffer, text_buffer_overflow, text_buffer_len, block = self.src_dest_data_read(packet);
+
+                # if (text_buffer_len > 0):
+                hashcode = self.hash_block;
+
+                if (hashcode in self.hash_to_data.keys()):
+                    packet.payload = hashcode;
+                    self.staff_send(packet);
+                else:
+                    # packet.payload = text_buffer;
+                    # self.staff_send(packet);
+                    self.flush_buffer(packet);
+                self.reset_buffers(packet);
             else:
-                if len(self.CURRENT_PAYLOAD) + self.CURRENT_BLOCK_BYTE_SIZE < WanOptimizer.BLOCK_SIZE:
-
-                    # In the case that the packet has reached max size or its the final packet, send
-                    if len(self.CURRENT_PAYLOAD) == utils.MAX_PACKET_SIZE:
-                        self.CURRENT_BLOCK.append(
-                            Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
-
-                        self.CURRENT_BLOCK_BYTE_SIZE += len(self.CURRENT_PAYLOAD)
-                        self.CURRENT_PAYLOAD = next_payload
-
-                elif len(self.CURRENT_PAYLOAD) + self.CURRENT_BLOCK_BYTE_SIZE == WanOptimizer.BLOCK_SIZE:
-                    self.CURRENT_BLOCK.append(
-                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
-                    self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
-
-                    self.CURRENT_BLOCK = []
-                    self.CURRENT_BLOCK_BYTE_SIZE = 0
-                    self.CURRENT_PAYLOAD = next_payload
-                else:
-                    old_payload = self.CURRENT_PAYLOAD
-                    self.CURRENT_PAYLOAD = self.CURRENT_PAYLOAD[:(
-                        self.CURRENT_BLOCK_BYTE_SIZE + len(self.CURRENT_PAYLOAD) - WanOptimizer.BLOCK_SIZE)]
-                    print WanOptimizer.BLOCK_SIZE - self.CURRENT_BLOCK_BYTE_SIZE
-                    self.CURRENT_BLOCK_BYTE_SIZE += len(self.CURRENT_PAYLOAD)  # should be 8000 at most
-                    self.CURRENT_BLOCK.append(
-                        Packet(packet.src, packet.dest, is_raw_data=True, is_fin=False, payload=self.CURRENT_PAYLOAD))
-                    self.send_block(self.CURRENT_BLOCK, packet.src, packet.dest)
-
-                    self.CURRENT_PAYLOAD = old_payload[(
-                        self.CURRENT_BLOCK_BYTE_SIZE + len(self.CURRENT_PAYLOAD) - WanOptimizer.BLOCK_SIZE):] + next_payload
-                    self.CURRENT_BLOCK = []
-                    self.CURRENT_BLOCK_BYTE_SIZE = 0
-        # Received a Hash from WAN optimizer and not raw data.
+                if (buffer_flushed == True):
+                    self.reset_buffers(packet);
         else:
-            received_hash = packet.payload
+            received_hash = packet.payload;
             # Check if its in the dict. If it isn't, INVALID HASH
             if received_hash in self.hash_to_data.keys():
-                raw_data = self.hash_to_data[received_hash]
-                packet.payload = raw_data
-                if packet.dest in self.address_to_port:
+                if packet.dest in self.address_to_port: #ERIC: If we are sending to a client, then we don't send the hash
                     # The packet is destined to one of the clients connected to this middlebox;
                     # send the packet there.
-                    self.send(packet, self.address_to_port[packet.dest])
+                    raw_data = self.hash_to_data[received_hash];
+                    self.split_and_send_data(packet, raw_data);
                 else:
                     # The packet must be destined to a host connected to the other middlebox
                     # so send it across the WAN.
-                    self.send(packet, self.wan_port)
+                    self.staff_send(packet);
+
