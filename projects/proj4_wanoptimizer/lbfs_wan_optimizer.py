@@ -27,6 +27,26 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         the WAN; this WAN optimizer should operate based only on its own local state
         and packets that have been received.
         """
+        """
+        dictionary: key = (source, destination), value = [complete_data, block_start_index, block_end_index]
+        for each source, destination pair:
+            build complete_data until final packet arrives      !this might take too much space
+
+            while (block_end_index < len(complete_data)):
+                1.  block = complete_data[block_start_index:block_end_index]
+                2.  block_hash = utils.get_hash(block) 
+                3.  block_key = last(lower) 13 bits of block_hash
+                4.  while (block_key != delimiter AND block_end_index < len(complete_data)):
+                        block_hash = block.hash()
+                        i++;
+                5.  if block_hash in dictionary:
+                        send block_hash
+                    else: 
+                        add block to dictionary
+                        send out the whole block
+                    increment block_start_index
+                    increment block_end_index 
+
         if packet.dest in self.address_to_port:
             # The packet is destined to one of the clients connected to this middlebox;
             # send the packet there.
