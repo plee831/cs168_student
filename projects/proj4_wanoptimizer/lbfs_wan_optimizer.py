@@ -97,37 +97,6 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         the WAN; this WAN optimizer should operate based only on its own local state
         and packets that have been received.
         """
-        """
-        dictionary: key = (source, destination), value = [unhashed_data, block_end_index]
-        for each source, destination pair:
-            if raw_data:
-                add payload to buffer
-                
-                while (block_end_index < len(unhashed_data)):
-                    1.  block = unhashed_data[:block_end_index]
-                    2.  block_hash = utils.get_hash(block) 
-                    3.  block_key = last(lower) 13 bits of block_hash   <-- what we will use to compare to delimiter
-                    4.  while (block_key != delimiter AND block_end_index < len(unhashed_data)):
-                            block_hash = block.hash()
-                            i++;
-                    5.  if block_end_index == len(unhashed_data):
-                            if not packet.is_fin:
-                                break;
-                    6.  if block_hash in hash_to_data:
-                            send block_hash
-                        else: 
-                            add block to hash_to_data
-                            send out the whole block
-                        increment block_end_index
-            else:
-                hash = packet.payload
-                if hash in hash_to_data:
-                    if unhashed_data in buffer:
-                        add unhashed_data to hash_to_data
-                        send unhashed_data
-                    send packet
-
-        """
         src, dest = packet.src, packet.dest;
 
         # Check if in the dictionary, if not add it in
@@ -137,22 +106,34 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
             self.buffers[(packet.src, packet.dest)]["end"] = 48;
 
         if packet.is_raw_data:
+                # print str(self) + str(len(packet.payload))
                 # Grab data from buffers{}, will write data back in at the end to reduce overhead from while loops
                 unhashed_data = self.buffers[(src, dest)]["unhashed_data"] + packet.payload;
                 end = self.buffers[(src, dest)]["end"];
+
                 # Create the block and relevant info
                 block = unhashed_data[:end];
                 block_hash = utils.get_hash(block);
-                block_key = utils.get_last_n_bits(block_hash, 13);
+                window_hash = utils.get_hash(block[end-48:end])
+                block_key = utils.get_last_n_bits(window_hash, 13);
 
                 # First while loop loops through all of unhashed_data
-                while (end < len(unhashed_data) + 1):
+                while (end <= len(unhashed_data)):
+                    block = unhashed_data[:end];
+                    block_hash = utils.get_hash(block);
+                    window_hash = utils.get_hash(block[end-48:end])
+                    block_key = utils.get_last_n_bits(window_hash, 13);
+
                     # Second while loop finds the first block that ends with the delimiter
-                    while (block_key != WanOptimizer.GLOBAL_MATCH_BITSTRING and end < len(unhashed_data) + 1):
+                    while (block_key != WanOptimizer.GLOBAL_MATCH_BITSTRING and end <= len(unhashed_data)):
                         block = unhashed_data[:end];
                         block_hash = utils.get_hash(block);
-                        block_key = utils.get_last_n_bits(block_hash, 13);
+                        window_hash = utils.get_hash(block[end-48:end])
+                        block_key = utils.get_last_n_bits(window_hash, 13);
                         end = end + 1;
+
+                    end = end - 1;  # Need to subtract by 1 because we will skip one character
+                                    # when making consecutive blocks because of end = end + 1.
 
                     # If we didn't find a valid block, leave the loop
                     if block_key != WanOptimizer.GLOBAL_MATCH_BITSTRING:
@@ -161,26 +142,39 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                     # If we've already hashed this block, then send out the hash
                     # Else we hash it and then send out the whole block
                     if block_hash in self.hash_to_data:
-                        packet.payload = block_hash;
-                        packet.is_raw_data = False;
-                        self.send_packet(packet);
+                        hash_packet = Packet(src=packet.src,
+                                                    dest=packet.dest,
+                                                    is_raw_data=False,
+                                                    is_fin=False,
+                                                    payload=block_hash);
+                        self.send_packet(hash_packet);
                     else:
                         self.hash_to_data[block_hash] = block;
                         self.split_and_send_data(packet, block);
 
-                    unhashed_data = unhashed_data[end:];
+                    unhashed_data = unhashed_data[end:]; # next window starts at the end of the previous
                     end = 48;
 
                 # Where we send fin packet
                 if packet.is_fin:
                     # Hash and send whatever data is left in buffer
-                    self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
                     if unhashed_data:
-                        self.split_and_send_data(packet, unhashed_data);
+                        hashcode = utils.get_hash(unhashed_data)
+                        if hashcode in self.hash_to_data.keys():
+                            hash_packet = Packet(src=packet.src,
+                                                    dest=packet.dest,
+                                                    is_raw_data=False,
+                                                    is_fin=False,
+                                                    payload=hashcode);
+                            self.send_packet(hash_packet);
+                            self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
+                        else:
+                            self.split_and_send_data(packet, unhashed_data);
 
                     # Send empty fin packet
-                    packet.payload = ""
+                    packet.is_fin = True;
                     packet.is_raw_data = True;
+                    packet.payload = ""
                     self.send_packet(packet);
                     unhashed_data = "";
                     end = 48;
@@ -190,16 +184,27 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
 
         else:
             if packet.payload in self.hash_to_data.keys():
+                prev_payload = packet.payload;
                 unhashed_data = self.buffers[(src, dest)]["unhashed_data"];
                 # If there is unhashed data, hash it and send it out
                 if unhashed_data:
-                    self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
-                    self.split_and_send_data(packet, unhashed_data);
+                    hashcode = utils.get_hash(unhashed_data)
+                    if hashcode in self.hash_to_data.keys():
+                        hash_packet = Packet(src=packet.src,
+                                                dest=packet.dest,
+                                                is_raw_data=False,
+                                                is_fin=False,
+                                                payload=hashcode);
+                        self.send_packet(packet)
+                    else:
+                        self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
+                        self.split_and_send_data(packet, unhashed_data);
+
                     self.buffers[(src, dest)]["unhashed_data"] = "";
                     self.buffers[(src, dest)]["end"] = 48;
 
                 if packet.dest in self.address_to_port:
-                    raw_data = self.hash_to_data[packet.payload]
+                    raw_data = self.hash_to_data[prev_payload]
                     self.split_and_send_data(packet, raw_data)
                     if packet.is_fin:
                         packet.payload = "";

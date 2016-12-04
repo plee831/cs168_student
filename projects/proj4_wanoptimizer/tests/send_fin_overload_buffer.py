@@ -29,7 +29,7 @@ def send_fin_overload_buffer(middlebox_module, testing_part_1):
     f.close()
     # Send file from client 1 to client 2.
     client1.send_file(filename, client2_address)
-    client1.send_file(filename, client2_address)
+    # client1.send_file(filename, client2_address)
 
     # Make sure that the files have the same contents.
     with open(filename, "r") as input_file:
