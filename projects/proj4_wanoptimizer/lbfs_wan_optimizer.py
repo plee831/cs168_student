@@ -111,12 +111,6 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                 unhashed_data = self.buffers[(src, dest)]["unhashed_data"] + packet.payload;
                 end = self.buffers[(src, dest)]["end"];
 
-                # Create the block and relevant info
-                block = unhashed_data[:end];
-                block_hash = utils.get_hash(block);
-                window_hash = utils.get_hash(block[end-48:end])
-                block_key = utils.get_last_n_bits(window_hash, 13);
-
                 # First while loop loops through all of unhashed_data
                 while (end <= len(unhashed_data)):
                     block = unhashed_data[:end];
@@ -167,9 +161,9 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                                                     is_fin=False,
                                                     payload=hashcode);
                             self.send_packet(hash_packet);
-                            self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
                         else:
                             self.split_and_send_data(packet, unhashed_data);
+                            self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
 
                     # Send empty fin packet
                     packet.is_fin = True;
@@ -185,6 +179,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
         else:
             if packet.payload in self.hash_to_data.keys():
                 prev_payload = packet.payload;
+
                 unhashed_data = self.buffers[(src, dest)]["unhashed_data"];
                 # If there is unhashed data, hash it and send it out
                 if unhashed_data:
