@@ -111,3 +111,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                 if packet.payload in self.hash_to_data.keys():
                     raw_data = self.hash_to_data[packet.payload]
                     self.send_payload_by_splitting(raw_data, packet.src, packet.dest, packet.is_fin)
+            else:
+                if packet.payload in self.hash_to_data.keys():
+                    self.send_packet(packet)
+
