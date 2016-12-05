@@ -129,6 +129,21 @@ def main():
 
     total_tests = 0
     passed_tests = 0
+
+    if args.data_reduction_with_jumbled_files or args.run_all:
+        passed_tests += run_test(
+            diamond_top_2_electric_boogaloo.data_reduction_with_jumbled_files,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+
+    if args.cross_sending or args.run_all:
+        passed_tests += run_test(
+            diamond_top_2_electric_boogaloo.cross_sending,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+        
     if args.send_fin_overload_buffer or args.run_all:
         test_module = send_fin_overload_buffer
         passed_tests += run_test(
@@ -151,20 +166,6 @@ def main():
     if args.test_delimiter_at_end_with_fin or args.run_all:
         passed_tests += run_test(
             eric_tests.test_delimiter_at_end_with_fin,
-            middlebox_module,
-            testing_part_1)
-        total_tests += 1
-
-    if args.data_reduction_with_jumbled_files or args.run_all:
-        passed_tests += run_test(
-            diamond_top_2_electric_boogaloo.data_reduction_with_jumbled_files,
-            middlebox_module,
-            testing_part_1)
-        total_tests += 1
-
-    if args.cross_sending or args.run_all:
-        passed_tests += run_test(
-            diamond_top_2_electric_boogaloo.cross_sending,
             middlebox_module,
             testing_part_1)
         total_tests += 1
