@@ -118,17 +118,20 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                     block_hash = utils.get_hash(block);
                     window_hash = utils.get_hash(block[end-48:end])
                     block_key = utils.get_last_n_bits(window_hash, 13);
+                    entered_inner_loop = False;
 
                     # Second while loop finds the first block that ends with the delimiter
                     while (block_key != WanOptimizer.GLOBAL_MATCH_BITSTRING and end <= len(unhashed_data)):
+                        entered_inner_loop = True;
                         block = unhashed_data[:end];
                         block_hash = utils.get_hash(block);
                         window_hash = utils.get_hash(block[end-48:end])
                         block_key = utils.get_last_n_bits(window_hash, 13);
                         end = end + 1;
 
-                    end = end - 1;  # Need to subtract by 1 because we will skip one character
-                                    # when making consecutive blocks because of end = end + 1.
+                    if entered_inner_loop:
+                        end = end - 1;  # Need to subtract by 1 because we will skip one character
+                                        # when making consecutive blocks because of end = end + 1.
 
                     # If we didn't find a valid block, leave the loop
                     if block_key != WanOptimizer.GLOBAL_MATCH_BITSTRING:
