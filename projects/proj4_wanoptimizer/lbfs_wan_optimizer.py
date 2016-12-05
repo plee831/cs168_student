@@ -164,8 +164,8 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                                                     payload=hashcode);
                             self.send_packet(hash_packet);
                         else:
-                            self.split_and_send_data(packet, unhashed_data);
                             self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
+                            self.split_and_send_data(packet, unhashed_data);
 
                     # Send empty fin packet
                     packet.is_fin = True;
@@ -192,7 +192,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                                                 is_raw_data=False,
                                                 is_fin=False,
                                                 payload=hashcode);
-                        self.send_packet(packet)
+                        self.send_packet(hash_packet)
                     else:
                         self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
                         self.split_and_send_data(packet, unhashed_data);
