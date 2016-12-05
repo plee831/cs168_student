@@ -110,9 +110,10 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                 # Grab data from buffers{}, will write data back in at the end to reduce overhead from while loops
                 unhashed_data = self.buffers[(src, dest)]["unhashed_data"] + packet.payload;
                 end = self.buffers[(src, dest)]["end"];
+                break_loop = False;
 
                 # First while loop loops through all of unhashed_data
-                while (end <= len(unhashed_data)):
+                while (break_loop == False):
                     block = unhashed_data[:end];
                     block_hash = utils.get_hash(block);
                     window_hash = utils.get_hash(block[end-48:end])
@@ -131,6 +132,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
 
                     # If we didn't find a valid block, leave the loop
                     if block_key != WanOptimizer.GLOBAL_MATCH_BITSTRING:
+                        break_loop = True;
                         break;
 
                     # If we've already hashed this block, then send out the hash
@@ -190,7 +192,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                                                 is_raw_data=False,
                                                 is_fin=False,
                                                 payload=hashcode);
-                        self.send_packet(packet)
+                        self.send_packet(hash_packet)
                     else:
                         self.hash_to_data[utils.get_hash(unhashed_data)] = unhashed_data;
                         self.split_and_send_data(packet, unhashed_data);
