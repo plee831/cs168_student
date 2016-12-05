@@ -95,6 +95,30 @@ def main():
         "--send-fin-overload-buffer",
         dest="send_fin_overload_buffer",
         action="store_true")
+    parser.add_argument(
+        "--test_delimiter_at_end_without_fin",
+        dest="test_delimiter_at_end_without_fin",
+        action="store_true")
+    parser.add_argument(
+        "--test_delimiter_in_middle_with_fin_after",
+        dest="test_delimiter_in_middle_with_fin_after",
+        action="store_true")
+    parser.add_argument(
+        "--test_delimiter_at_end_with_fin",
+        dest="test_delimiter_at_end_with_fin",
+        action="store_true")   
+    parser.add_argument(
+        "--data_reduction_with_jumbled_files",
+        dest="data_reduction_with_jumbled_files",
+        action="store_true")    
+    parser.add_argument(
+        "--cross_sending",
+        dest="cross_sending",
+        action="store_true")    
+    parser.add_argument(
+        "--eric_tests",
+        dest="eric_tests",
+        action="store_true")
     args = parser.parse_args()
     if args.middlebox_name.endswith(".py"):
         print ("Do not include the .py suffix in the middlebox-name " +
@@ -105,6 +129,46 @@ def main():
 
     total_tests = 0
     passed_tests = 0
+    if args.send_fin_overload_buffer or args.run_all:
+        test_module = send_fin_overload_buffer
+        passed_tests += run_test(
+            test_module.send_fin_overload_buffer,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+    if args.test_delimiter_at_end_without_fin or args.run_all:
+        passed_tests += run_test(
+            eric_tests.test_delimiter_at_end_without_fin,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+    if args.test_delimiter_in_middle_with_fin_after or args.run_all:
+        passed_tests += run_test(
+            eric_tests.test_delimiter_in_middle_with_fin_after,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+    if args.test_delimiter_at_end_with_fin or args.run_all:
+        passed_tests += run_test(
+            eric_tests.test_delimiter_at_end_with_fin,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+
+    if args.data_reduction_with_jumbled_files or args.run_all:
+        passed_tests += run_test(
+            diamond_top_2_electric_boogaloo.data_reduction_with_jumbled_files,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+
+    if args.cross_sending or args.run_all:
+        passed_tests += run_test(
+            diamond_top_2_electric_boogaloo.cross_sending,
+            middlebox_module,
+            testing_part_1)
+        total_tests += 1
+
     if args.send_less_than_one_block or args.run_all:
         passed_tests += run_test(
             simple_tests.send_less_than_one_block,
@@ -198,13 +262,7 @@ def main():
             middlebox_module,
             testing_part_1)
         total_tests += 1 
-    if args.send_fin_overload_buffer or args.run_all:
-        test_module = send_fin_overload_buffer
-        passed_tests += run_test(
-            test_module.send_fin_overload_buffer,
-            middlebox_module,
-            testing_part_1)
-        total_tests += 1
+
     if passed_tests == total_tests:
         print "{}Success! Passed {}/{} tests{}".format(GREEN, passed_tests, total_tests, CLEAR)
     else:

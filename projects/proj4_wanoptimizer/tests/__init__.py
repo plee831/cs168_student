@@ -10,4 +10,6 @@ __all__ = [
     "data_reduction_prefixed_files",
     "verify_data_is_sent_incrementally",
     "verify_middlebox_handles_interleaved_data",
-    "send_fin_overload_buffer"]
+    "send_fin_overload_buffer",
+    "eric_tests",
+    "diamond_top_2_electric_boogaloo"]
