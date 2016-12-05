@@ -113,7 +113,7 @@ class WanOptimizer(wan_optimizer.BaseWanOptimizer):
                 break_loop = False;
 
                 # First while loop loops through all of unhashed_data
-                while (end <= len(unhashed_data) or break_loop == False):
+                while (end <= len(unhashed_data) or break_loop == True):
                     block = unhashed_data[:end];
                     block_hash = utils.get_hash(block);
                     window_hash = utils.get_hash(block[end-48:end])
