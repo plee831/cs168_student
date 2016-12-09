@@ -20,12 +20,19 @@ def main():
     t = TestSuite()
 
     t.test('learning_switch', 'tests.test_learning')
+    t.test('learning_switch', 'tests.test_super_learning')
+    t.test('learning_switch', 'tests.test_learning_disconnect')
     t.test('dv_router', 'tests.test_simple')
     t.test('dv_router', 'tests.test_failure')
     t.test('dv_router', 'tests.test_initialize_neighbor')
     t.test('dv_router', 'tests.test_no_hairpin')
     t.test('dv_router', 'tests.test_link_weights')
     t.test('dv_router', 'tests.test_expire_routes')
+    t.test('dv_router', 'tests.test_fun')
+    t.test('dv_router', 'tests.test_diamond_top')
+    t.test('dv_router', 'tests.test_basics_intensely')
+    t.test('dv_router', 'tests.test_diamond_top_2')
+    t.test('dv_router', 'tests.test_disconnect')
     t.test(
         'dv_router',
         'tests.test_route_poisoning',
