@@ -23,57 +23,61 @@ import socket
 import sys
 import time
 
+
 def pad_message(message):
-  while len(message) < utils.MESSAGE_LENGTH:
-    message += " "
-  return message[:utils.MESSAGE_LENGTH]
+    while len(message) < utils.MESSAGE_LENGTH:
+        message += " "
+    return message[:utils.MESSAGE_LENGTH]
+
 
 class ChatClientSplitMessages:
-  def __init__(self, server_host, server_port):
-    self.server_host = server_host
-    self.server_port = server_port
+    def __init__(self, server_host, server_port):
+        self.server_host = server_host
+        self.server_port = server_port
 
-  def send_split_message(self, client_socket, message):
-    chars_sent = 0
-    padded_message = pad_message(message)
-    # Send random number of characters in the message.
-    while chars_sent < utils.MESSAGE_LENGTH:
-      last_char_to_send = random.randrange(chars_sent, utils.MESSAGE_LENGTH + 1)
-      message_to_send = padded_message[chars_sent:last_char_to_send]
-      if len(message_to_send) > 0:
-        print "Sending {} characters: {}".format(
-          last_char_to_send - chars_sent, message_to_send)
-        client_socket.sendall(message_to_send)
-        chars_sent = last_char_to_send
+    def send_split_message(self, client_socket, message):
+        chars_sent = 0
+        padded_message = pad_message(message)
+        # Send random number of characters in the message.
+        while chars_sent < utils.MESSAGE_LENGTH:
+            # last_char_to_send = random.randrange(chars_sent, utils.MESSAGE_LENGTH + 1)
+            last_char_to_send = utils.MESSAGE_LENGTH
+            message_to_send = padded_message[chars_sent:last_char_to_send]
+            if len(message_to_send) > 0:
+                # print "Sending {} characters: {}".format(
+                #     last_char_to_send - chars_sent, message_to_send).strip()
+                client_socket.sendall(message_to_send)
+                chars_sent = last_char_to_send
 
-  def run(self):
-    client_socket = socket.socket()
-    try:
-      client_socket.connect((self.server_host, self.server_port))
-    except:
-      print utils.CLIENT_CANNOT_CONNECT.format(self.server_host, self.server_port)
-      return
+    def run(self):
+        client_socket = socket.socket()
+        try:
+            client_socket.connect((self.server_host, self.server_port))
+        except:
+            print utils.CLIENT_CANNOT_CONNECT.format(self.server_host, self.server_port)
+            return
 
-    my_name = "SplitMessagesChatClient"
-    # Send the server our name.
-    self.send_split_message(client_socket, my_name)
+        my_name = "SplitMessagesChatClient"
+        # Send the server our name.
+        self.send_split_message(client_socket, my_name)
 
-    # Join a "split_messages" channel. This code assumes that the channel
-    # already exists.
-    self.send_split_message(client_socket, "/join split_messages")
+        # Join a "split_messages" channel. This code assumes that the channel
+        # already exists.
+        self.send_split_message(client_socket, "/join split_messages")
 
-    # Send the same message 10 times.
-    message = ("I think that I shall never see a structure more wasteful " +
-      "than a tree. Most links remain idle and unused while others are " +
-      "overloaded and abused.")
-    for i in range(10):
-      self.send_split_message(client_socket, message)
-      time.sleep(1)
+        # Send the same message 10 times.
+        message = ("I think that I shall never see a structure more wasteful " +
+                   "than a tree. Most links remain idle and unused while others are " +
+                   "overloaded and abused.")
+        for i in range(10):
+            self.send_split_message(client_socket, message)
+            time.sleep(1)
+
 
 if __name__ == "__main__":
-  if (len(sys.argv)) < 3:
-    print "Usage: python client_split_messages.py server_hostname server_port"
-    sys.exit(1)
+    if (len(sys.argv)) < 3:
+        print "Usage: python client_split_messages.py server_hostname server_port"
+        sys.exit(1)
 
-  chat_client = ChatClientSplitMessages(sys.argv[1], int(sys.argv[2]))
-  sys.exit(chat_client.run())
+    chat_client = ChatClientSplitMessages(sys.argv[1], int(sys.argv[2]))
+    sys.exit(chat_client.run())
