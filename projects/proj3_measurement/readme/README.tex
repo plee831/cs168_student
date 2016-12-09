@@ -1,0 +1,126 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm} % Boxes/formatting around algorithms
+\usepackage[noend]{algpseudocode} % Algorithms
+\usepackage[normalem]{ulem}
+\usepackage[margin=2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[makeroom]{cancel}
+\usepackage[pdftex]{graphicx}
+\usepackage[final]{pdfpages}
+
+
+\newcommand\lgh{\fontsize{17}{21}\usefont{T1}{cmdh}{m}{n}}
+\newcommand\myrule{\par\noindent\rule{\textwidth}{4pt}\par}
+
+
+\begin{document}
+
+\myrule\medskip
+\noindent{\lgh CS168 | Fall 2016 \hfill Introduction to Internet: Architecture \& Protocols\\[0.5ex]
+Project 3: Measurement}\hfill{\scshape Peter B. Lee \& Eric Om | October 2016}
+\myrule
+\section{Round Trip Time}
+\begin{enumerate}
+    \item
+    Experiment A:
+    \begin{enumerate}
+        \item
+        22\% never respond to pings. 35\% fail at least one ping. 
+        \item CDF on next page.
+        \includepdf[pages=1,pagecommand={}]{rtt_a_agg_ping_results.pdf}
+    \end{enumerate}
+    \item
+    Experiment B:
+    \begin{enumerate}
+        \item
+        For "google.com", median RTT: 95.495 ms, maximum RTT: 6.872 ms.\\
+        It's loss rate is 0.0.\\
+        For "todayhumor.co.kr", median RTT: 154.546 ms, maximum RTT: 11.985 ms.\\
+        It's loss rate is 0.0.\\
+        For "zanvarsity.ac.tz", median RTT: 680.526 ms, maximum RTT: 76.276 ms.\\
+        It's loss rate is 2.0.\\
+        For "taobao.com", median RTT: 668.561 ms, maximum RTT: 74.398 ms. \\ 
+        It's loss rate is 0.8.
+        \item CDF on next page.
+    \end{enumerate}
+    \item
+        \begin{enumerate}
+            \item
+            The multiplier for google.com is $3.18537033 * 10^{-10} s^{2}/m$. \\The multipler for zanvarsity.ac.tz is $2.26999039 * 10^{-9} s^{2}/m$.
+            \item
+            The reason why the ping time is not equal to the speed of light time is due to several factors, one example being distance that the packets have to travel back and forth, using cables and routers. Due to this, trying to ping a location that is farther away such as zanvaristy.ac.tz's servers compared to google.com's yields for a greater median RTT. This would mean that a website's "physical location" contributes to the amount of time it takes to ping the website.
+    \end{enumerate}
+    \includepdf[pages=1]{rtt_b_raw_results.pdf}
+\end{enumerate}
+\section{Routing}
+\begin{enumerate}
+    \item Experiment A
+    \begin{enumerate}
+        \item Which ASes are Berkeley directly connected to?\\
+        AS2152
+        \item Which traceroute traverses the most number of ASes? How about the least number of ASes?\\
+        Most : Zanvarsity.ac.tz, www.vutbr.cz\\
+        Least: berkeley.edu
+        \item Which websites' routes are load-balanced?\\
+        All are load-balanced
+        \item Are the observed routes stable over multiple runs? For each website, how many unique routes did you observe?\\
+        "Google.com": 5\\
+        "Facebook.com": 5\\
+        "www.berkeley.edu": 1\\
+        "Allspice.lcs.mit.edu": 4\\
+        "Todayhumor.co.kr"”: 5\\
+        "www.city.kobe.lg.jp": 5\\
+        "www.vutbr.cz": 1\\
+        "Zanvarsity.ac.tz": 5
+        \item Using one sentence, please explain one advantage of having stable routes.\\
+            By utilizing stable routes it is easier to monitor link-failures for more reliable transportation and for predictability.
+    \end{enumerate}
+    \item Experiment B
+    \begin{enumerate}
+    \item How many hops do you observe in each route when you run traceroute from your computer? How many hops do you observe in the reverse direction?\\
+    We used 68.87.196.13 when we called traceroute in the reverse direction. 68.87.196.13 is the third hop in our traceroute from our computer.\\
+	Number of hops from our computer to the public servers:\\
+	18 hops to tpr-route-server.saix.net\\
+	13 hops to route-server.ip-plus.net\\
+	14 hops to route-views.oregon-ix.net\\
+	13 hops to route-views.on.bb.telus.com\\
+	Number of hops from 68.87.196.13 to the public servers:\\
+	16 hops to tpr-route-server.saix.net\\
+	11 hops to route-server.ip-plus.net\\
+	12 hops to route-views.oregon-ix.net\\
+	11 hops to route-views.on.bb.telus.com\\
+	Number of hops to our 68.87.196.13 from the public servers:\\
+	17 hops to tpr-route-server.saix.net\\
+	23 hops to route-server.ip-plus.net\\
+	9 hops to route-views.oregon-ix.net\\
+	14 hops to route-views.on.bb.telus.com\\
+    \item Are these routes symmetric? How many are symmetric and how many are not?\\
+    None of these routes are symmetric.
+    \item What might cause asymmetric routes? List one or two reasons? \\
+    Traffic congestion is one potential cause of routing asymmetry.
+    \end{enumerate}
+\end{enumerate}
+\newpage
+\section{Naming}
+    \begin{enumerate}
+        \item
+        The average root TTL: 22996220.\\
+        The average TLD TTL: 12960000.\\
+        The average other name server TTL: 31022125.\\
+        The average terminating entry TTL: 269238.
+        \item
+        CDF on the next page. 
+        \item
+        During the first trial, 6 answers changed. 11 names gave different answers at some point in the two trials.
+        \item
+        When you run the trace with a different countries server, you find that when you count the differences, there are none for the different countries output, but when you compare that with one from the US, you get differences. When we ran this in count\_different\_dns\_responses("dns\_output\_other\_server.json", "dns\_output\_1.json"), we get [0, 36], when we used server = 192.203.138.11. 
+        \item
+        The Korean DNS server we queried probably has a different set of A records to use to refer us to an optimal IP address based on our location. 
+        \item
+        The DNS resolution times would be shorter because instead of following referrals starting from a root server to find the ip address of the hostname we queried, it would query a target name server and use the returned ip address.
+        \includepdf[pages=1]{alexa_top_100_times.pdf}
+    \end{enumerate}
+
+\end{document}
